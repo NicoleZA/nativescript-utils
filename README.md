@@ -14,9 +14,22 @@ var utils = require("nativescript-utils");
 
 After you have a reference to the module you can then call the available methods.
 
+### Function list
+
+####class str
+* filterArray(data, searchField, searchText) returns array
+* fixedEncodeURIComponent(url) returns string
+* getArrayItem(data, searchField, searchValue) returns json 
+* observableArray(array) returns observableArray
+####class tagging
+* tagClearAll(array) returns array
+* tagAll(array) returns array
+* unTagAll(arr) returns array
+* tagToggle(obj) returns json 
 
 ### str Functions
-#### filterArray(data: any[], searchField: string, searchText: string) {
+
+#### filterArray(data: any[], searchField: string, searchText: string) returns any[]
 
 ##### Parameters
 * data: the json array to filter.
