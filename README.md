@@ -15,13 +15,13 @@ var utils = require("nativescript-utils");
 After you have a reference to the module you can then call the available methods.
 
 
-### Functions
-#### 	public filterArray(data: any[], searchField: string, searchText: string) {
+### str Functions
+#### filterArray(data: any[], searchField: string, searchText: string) {
 
 ##### Parameters
 * data: the json array to filter.
-* searchField: the json object name 
-* the value to filter by 
+* searchField: the name of a json object in the array 
+* the text to search for in that object 
 
 For example, the code below returns 2 rows where the letter 'o' is containted in lastname
 
@@ -35,9 +35,8 @@ var data = {"employees":[
 ]};
 var filteredData = str.filterArray(data,"lastName","o");
 ```
-
 ###### typescript
-```js
+```ts
 import {str} from 'nativescript-utils';
 var data = {"employees":[
     {"firstName":"John", "lastName":"Doe"},
