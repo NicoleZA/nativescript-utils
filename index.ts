@@ -44,8 +44,8 @@ class Sql {
 
 class Str {
 
-	public fixedEncodeURIComponent(str) {
-		return encodeURIComponent(str).replace(/[!'()*]/g, function(c) {
+	public fixedEncodeURIComponent(url: string) {
+		return encodeURIComponent(url).replace(/[!'()*]/g, function(c) {
 			return '%' + c.charCodeAt(0).toString(16);
 		});
 	}
