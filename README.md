@@ -16,12 +16,13 @@ After you have a reference to the module you can then call the available methods
 
 ### Function list
 
-####class str
+#### class str
 * filterArray(data, searchField, searchText) returns array
 * fixedEncodeURIComponent(url) returns string
 * getArrayItem(data, searchField, searchValue) returns json 
 * observableArray(array) returns observableArray
-####class tagging
+
+#### class tagging
 * tagClearAll(array) returns array
 * tagAll(array) returns array
 * unTagAll(arr) returns array
