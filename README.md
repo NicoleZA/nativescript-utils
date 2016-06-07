@@ -25,7 +25,7 @@ After you have a reference to the module you can then call the available methods
 #### class tagging
 * tagClearAll(array) returns array
 * tagAll(array) returns array
-* unTagAll(arr) returns array
+* unTagAll(array) returns array
 * tagToggle(obj) returns json 
 
 ### str Functions

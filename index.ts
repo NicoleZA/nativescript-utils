@@ -1,5 +1,6 @@
+export var sf = require('sf');
 import {ObservableArray} from "data/observable-array";
-var sf = require('sf');
+export var moment = require("moment");
 
 class Tagging {
 	
@@ -69,6 +70,31 @@ class Str {
 	
 }
 
+class Dt {
+	public dateToStr(date?: Date) {
+		if(!date) {
+	        return moment().format('DD/MM/YYYY');
+		} else {
+	        return moment(date).format('DD/MM/YYYY');
+		}
+	}
+	public strToDate(date: string) {
+		if(!date) {
+		   moment().toDate();
+		} else {
+		   return moment(date, 'DD/MM/YYYY').toDate();
+		}
+	}
+	public strToMoment(date: string) {
+		if(!date) {
+		   return moment();
+		} else {
+		   return moment(date, 'DD/MM/YYYY');
+		}
+	}
+}
+
 export var tagging = new Tagging();
 export var str = new Str();
 export var sql = new Sql();
+export var dt = new Dt();
