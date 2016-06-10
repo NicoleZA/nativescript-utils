@@ -17,7 +17,8 @@ After you have a reference to the module you can then call the available methods
 ### Function list
 
 #### class str
-* filterArray(data, searchField, searchText) returns array
+* filterArray(data, searchField, searchText) returns ObservableArray
+* filterArrayByArray(data: any[], searchField: string[], searchText: string) returns ObservableArray
 * fixedEncodeURIComponent(url) returns string
 * getArrayItem(data, searchField, searchValue) returns json 
 * observableArray(array) returns observableArray

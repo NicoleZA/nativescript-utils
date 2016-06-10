@@ -58,6 +58,25 @@ class Str {
 		return new ObservableArray(filteredData);
 	}
 
+	public filterArrayByArray(data: any[], searchField: string[], searchText: string) {
+		var filteredData =data.filter(function (x) {
+
+			for (var i = 0; i < searchField.length; i++) {
+				if (x[searchField[i]].toLowerCase().indexOf(searchText.toLowerCase())>=0) return true;
+			}
+			return false;
+
+		});
+		return new ObservableArray(filteredData);
+	}
+	
+	public containsAny(str, substrings) {
+        for (var i = 0; i != substrings.length; i++) {
+           if (str.indexOf(substrings[i]) != - 1) return true;
+        }
+        return false; 
+    }
+
 	public getArrayItem(data: any[], searchField: string, searchValue: any) {
 		return data.filter(function (obj) {
 			return obj[searchField] == searchValue;
