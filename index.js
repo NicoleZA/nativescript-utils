@@ -57,13 +57,13 @@ var Str = (function () {
     };
     Str.prototype.filterArray = function (data, searchField, searchText) {
         var filteredData = data.filter(function (x) {
-            return x[searchField] == searchText;
+            return x[searchField].toUpperCase() == searchText.toUpperCase();
         });
         return new observable_array_1.ObservableArray(filteredData);
     };
     Str.prototype.getArrayItem = function (data, searchField, searchValue) {
         return data.filter(function (obj) {
-            return obj[searchField] == searchValue;
+            return obj[searchField].toUpperCase() == searchValue.toUpperCase();
         })[0];
     };
     Str.prototype.observableArray = function (array) {
