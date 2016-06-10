@@ -52,17 +52,19 @@ class Str {
 	}
 
 	public filterArray(data: any[], searchField: string, searchText: string) {
+		searchText = searchText.toLowerCase()
 		var filteredData =data.filter(function (x) {
-			return x[searchField] == searchText;
+			return (x[searchField].toLowerCase().indexOf(searchText)>=0);
 		});
 		return new ObservableArray(filteredData);
 	}
 
 	public filterArrayByArray(data: any[], searchField: string[], searchText: string) {
+		searchText = searchText.toLowerCase()
 		var filteredData =data.filter(function (x) {
 
 			for (var i = 0; i < searchField.length; i++) {
-				if (x[searchField[i]].toLowerCase().indexOf(searchText.toLowerCase())>=0) return true;
+				if (x[searchField[i]].toLowerCase().indexOf(searchText)>=0) return true;
 			}
 			return false;
 
