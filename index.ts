@@ -5,25 +5,25 @@ export var moment = require("moment");
 class Tagging {
 	
 	//Tagging ------------
-	public tagClearAll(arr) {
+	public tagClearAll(arr) : any[] {
 		for (var i = 0; i < arr.length; i++) {
 			arr[i].tag = ""
 		}
 		return arr;
 	}
-	public tagAll(arr) {
+	public tagAll(arr) : any[] {
 		for (var i = 0; i < arr.length; i++) {
 			arr[i].tag = String.fromCharCode(0xf046);
 		}
 		return arr;
 	}
-	public unTagAll(arr) {
+	public unTagAll(arr) : any[] {
 		for (var i = 0; i < arr.length; i++) {
 			arr[i].tag = String.fromCharCode(0xf096);
 		}
 		return arr;
 	}
-	public tagToggle(obj) {
+	public tagToggle(obj) : any {
 		if(obj.tag == String.fromCharCode(0xf046)) {
 			obj.tag = String.fromCharCode(0xf096);
 		} else {
@@ -35,7 +35,7 @@ class Tagging {
 
 class Sql {
 	//other
-	public dateField(field, description) {
+	public dateField(field, description) : string {
 		return sf("convert(varchar,convert(datetime,{0}-36163),103) {0}",field, description || field );
 	}
 	public date(field) {
@@ -45,13 +45,13 @@ class Sql {
 
 class Str {
 
-	public fixedEncodeURIComponent(url: string) {
+	public fixedEncodeURIComponent(url: string) : string {
 		return encodeURIComponent(url).replace(/[!'()*]/g, function(c) {
 			return '%' + c.charCodeAt(0).toString(16);
 		});
 	}
 
-	public filterArray(data: any[], searchField: string, searchText: string) {
+	public filterArray(data: any[], searchField: string, searchText: string) : ObservableArray {
 		searchText = searchText.toLowerCase()
 		var filteredData =data.filter(function (x) {
 			return (x[searchField].toLowerCase().indexOf(searchText)>=0);
@@ -59,7 +59,7 @@ class Str {
 		return new ObservableArray(filteredData);
 	}
 
-	public filterArrayByArray(data: any[], searchField: string[], searchText: string) {
+	public filterArrayByArray(data: any[], searchField: string[], searchText: string) : ObservableArray {
 		searchText = searchText.toLowerCase()
 		var filteredData =data.filter(function (x) {
 
@@ -72,34 +72,34 @@ class Str {
 		return new ObservableArray(filteredData);
 	}
 	
-	public containsAny(str, substrings) {
+	public containsAny(str, substrings) : boolean {
         for (var i = 0; i != substrings.length; i++) {
            if (str.indexOf(substrings[i]) != - 1) return true;
         }
         return false; 
     }
 
-	public getArrayItem(data: any[], searchField: string, searchValue: any) {
+	public getArrayItem(data: any[], searchField: string, searchValue: any) : ObservableArray {
 		return data.filter(function (obj) {
 			return obj[searchField] == searchValue;
 		})[0];
 	}
 
-	public observableArray (array: Array<any>) {
+	public observableArray (array: Array<any>) : ObservableArray {
 		return new ObservableArray(array);
 	}
 	
 }
 
 class Dt {
-	public dateToStr(date?: Date) {
+	public dateToStr(date?: Date) : string {
 		if(!date) {
 	        return moment().format('DD/MM/YYYY');
 		} else {
 	        return moment(date).format('DD/MM/YYYY');
 		}
 	}
-	public strToDate(date: string) {
+	public strToDate(date: string) : Date {
 		if(!date) {
 		   moment().toDate();
 		} else {
