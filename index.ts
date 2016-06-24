@@ -51,7 +51,7 @@ class Str {
 		});
 	}
 
-	public filterArray(data: any[], searchField: string, searchText: string) : ObservableArray {
+	public filterArray(data: any[], searchField: string, searchText: string) {
 		searchText = searchText.toLowerCase()
 		var filteredData =data.filter(function (x) {
 			return (x[searchField].toLowerCase().indexOf(searchText)>=0);
@@ -59,7 +59,7 @@ class Str {
 		return new ObservableArray(filteredData);
 	}
 
-	public filterArrayByArray(data: any[], searchField: string[], searchText: string) : ObservableArray {
+	public filterArrayByArray(data: any[], searchField: string[], searchText: string) {
 		searchText = searchText.toLowerCase()
 		var filteredData =data.filter(function (x) {
 
@@ -79,13 +79,13 @@ class Str {
         return false; 
     }
 
-	public getArrayItem(data: any[], searchField: string, searchValue: any) : ObservableArray {
+	public getArrayItem(data: any[], searchField: string, searchValue: any) {
 		return data.filter(function (obj) {
 			return obj[searchField] == searchValue;
 		})[0];
 	}
 
-	public observableArray (array: Array<any>) : ObservableArray {
+	public observableArray (array: Array<any>) {
 		return new ObservableArray(array);
 	}
 	
