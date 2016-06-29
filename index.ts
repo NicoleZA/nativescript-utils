@@ -113,6 +113,12 @@ class Dt {
 		   return moment(date, 'DD/MM/YYYY');
 		}
 	}
+	public clarionDate(date: Date) : number {
+		var oneDay = 24*60*60*1000; // hours*minutes*seconds*milliseconds
+		var startDate = new Date("December 28, 1800");
+		var diffDays = Math.round(Math.abs((date.getTime() - startDate.getTime())/(oneDay)))
+		return diffDays
+	}
 }
 
 export var tagging = new Tagging();
