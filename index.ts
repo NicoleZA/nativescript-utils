@@ -1,36 +1,69 @@
 export var sf = require('sf');
-import {ObservableArray} from "data/observable-array";
 export var moment = require("moment");
+import {ObservableArray} from "data/observable-array";
+import {isAndroid} from "platform";
+import view = require("ui/core/view");
+
 
 class Tagging {
-	
+
+	public tagIcon = 0xf046;
+	public unTagIcon = 0xf096;
+
 	//Tagging ------------
-	public tagClearAll(arr) : any[] {
-		for (var i = 0; i < arr.length; i++) {
-			arr[i].tag = ""
+	public tagClearAll(array: any[]) : any[] {
+		for (var i = 0; i < array.length; i++) {
+			array[i].tag = ""
 		}
-		return arr;
+		return array;
 	}
-	public tagAll(arr) : any[] {
-		for (var i = 0; i < arr.length; i++) {
-			arr[i].tag = String.fromCharCode(0xf046);
+	public tagAll(array: any[]) : any[] {
+		for (var i = 0; i < array.length; i++) {
+			array[i].tag = String.fromCharCode(this.tagIcon);
 		}
-		return arr;
+		return array;
 	}
-	public unTagAll(arr) : any[] {
-		for (var i = 0; i < arr.length; i++) {
-			arr[i].tag = String.fromCharCode(0xf096);
+	public unTagAll(array: any[]) : any[] {
+		for (var i = 0; i < array.length; i++) {
+			array[i].tag = String.fromCharCode(this.unTagIcon);
 		}
-		return arr;
+		return array;
 	}
 	public tagToggle(obj) : any {
-		if(obj.tag == String.fromCharCode(0xf046)) {
-			obj.tag = String.fromCharCode(0xf096);
+		if(obj.tag == String.fromCharCode(this.tagIcon)) {
+			obj.tag = String.fromCharCode(this.unTagIcon);
 		} else {
-			obj.tag = String.fromCharCode(0xf046);
+			obj.tag = String.fromCharCode(this.tagIcon);
 		}
 		return obj;
 	}
+	public count(array: any[]) : number {
+		return  array.length;
+	}
+	public countTagged(array: any[]) : number {
+		return this.getTagged(array).length;
+	}
+	public countUntagged(array: any[]) : number {
+		return this.getTagged(array).length;
+	}
+	public getTagged(array: any[]) : any[] {
+		var taggedRows =array.filter(function (x) {
+			return (x.tag && x.tag == this.tagIcon);
+		});
+		return taggedRows;
+	}
+	public getunTagged(array: any[]) : any[] {
+		var taggedRows =array.filter(function (x) {
+			return (x.tag && x.tag == this.unTagIcon);
+		});
+		return taggedRows;
+	}
+	public toggleObservable(array: ObservableArray<any>, index : number) : ObservableArray<any> {
+		var row = this.tagToggle(array.getItem(index));
+        array.setItem(index,row);
+		return array;
+	}
+
 }
 
 class Sql {
@@ -121,7 +154,22 @@ class Dt {
 	}
 }
 
+class ViewExt {
+	public clearFocus(view: view.View)  {
+        if(isAndroid) view.android.clearFocus();
+	}
+	public dismissSoftInput(view: view.View)  {
+	  try {
+	       (<any>view).dismissSoftInput();
+	  } catch (error) {
+		  
+	  }
+	}
+}
+
+
 export var tagging = new Tagging();
 export var str = new Str();
 export var sql = new Sql();
 export var dt = new Dt();
+export var viewExt = new ViewExt();

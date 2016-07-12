@@ -17,6 +17,7 @@ After you have a reference to the module you can then call the available methods
 ### Function list
 
 #### class str
+String Functions
 * filterArray(data, searchField, searchText) returns ObservableArray
 * filterArrayByArray(data: any[], searchField: string[], searchText: string) returns ObservableArray
 * fixedEncodeURIComponent(url) returns string
@@ -24,10 +25,16 @@ After you have a reference to the module you can then call the available methods
 * observableArray(array) returns observableArray
 
 #### class tagging
+Tagging Functions
 * tagClearAll(array) returns array
 * tagAll(array) returns array
 * unTagAll(array) returns array
 * tagToggle(obj) returns json 
+
+#### class viewExt
+Extended View Methods 
+* clearFocus(view) 
+* dismissSoftInput(view)
 
 ### str Functions
 
