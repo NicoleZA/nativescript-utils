@@ -227,6 +227,75 @@ class ViewExt {
 	}
 }
 
+export interface IValueItem {
+    ValueMember: any
+    DisplayMember: string
+}
+
+/** a value list array */
+export class ValueList {
+
+	/** this array of value items */
+    private  items: Array<IValueItem>;
+
+	/** the number of items */
+    get length(): number { return this.items.length; }
+
+    constructor(array: Array<IValueItem>) {
+        this.items = array;
+    }
+
+	/** add a new item to the list */
+    public addItem(item: IValueItem) {
+        this.items.push(item);
+    }
+
+	/** add a new item to the beginning of the list */
+    public addItemFront(item: IValueItem) {
+        this.items.unshift(item);
+    }
+
+	/** get the list of value items */
+    public getItems() :Array<IValueItem> {
+        return this.items;
+    }
+	
+		/** get an item by its index */
+    public getItem(index: number): IValueItem {
+        if (index < 0 || index >= this.items.length) {
+            return null;
+        }
+        return this.items[index];
+    }
+
+	/** get the items display value by its index */
+    public getText(index: number): string {
+        if (index < 0 || index >= this.items.length) {
+            return "";
+        }
+        return this.items[index].DisplayMember;
+    }
+
+	/** get the items value by its index */
+    public getValue(index: number) {
+        if (index < 0 || index >= this.items.length) {
+            return null;
+        }
+        return this.items[index].ValueMember;
+    }
+
+	/** get the items index by its value */
+    public getIndex(value: any): number {
+        let loop: number;
+        for (loop = 0; loop < this.items.length; loop++) {
+            if (this.getValue(loop) == value) {
+                return loop;
+            }
+        }
+        return -1;
+    }
+}
+
 export var tagging = new Tagging();
 export var str = new Str();
 export var sql = new Sql();

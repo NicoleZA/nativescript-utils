@@ -36,6 +36,16 @@ Extended View Methods
 * clearFocus(view) 
 * dismissSoftInput(view)
 
+#### class ValueList
+A class for managing a keyPair of type IValueItem {ValueMember: any; DisplayMember: string}
+* public addItem(item: IValueItem)
+* addItemFront(item: IValueItem)
+* getItems() :Array<IValueItem>
+* getItem(index: number): IValueItem
+* getText(index: number): string
+* getValue(index: number): any
+* getIndex(value: any): number
+
 ### str Functions
 
 #### filterArray(data: any[], searchField: string, searchText: string) returns any[]

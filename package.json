@@ -1,7 +1,7 @@
 {
   "name": "nativescript-utils",
-  "version": "1.0.16",
-  "description": "Useful collection of functions",
+  "version": "1.0.18",
+  "description": "Useful collection of functions for nativescript",
   "main": "index.js",
   "author": {
     "name": "Nicole Orpen",
@@ -22,15 +22,15 @@
     "moment": "^2.13.0",
     "sf": "^0.1.8"
   },
-  "readme": "# NativeScript Utils\n\nA NativeScript module providing a collection of useful functions\n\n## Installation\n\n```\nnpm install nativescript-utils\n```\n\n## Usage\n\nvar utils = require(\"nativescript-utils\");\n\nAfter you have a reference to the module you can then call the available methods.\n\n### Function list\n\n#### class str\n* filterArray(data, searchField, searchText) returns array\n* fixedEncodeURIComponent(url) returns string\n* getArrayItem(data, searchField, searchValue) returns json \n* observableArray(array) returns observableArray\n\n#### class tagging\n* tagClearAll(array) returns array\n* tagAll(array) returns array\n* unTagAll(array) returns array\n* tagToggle(obj) returns json \n\n### str Functions\n\n#### filterArray(data: any[], searchField: string, searchText: string) returns any[]\n\n##### Parameters\n* data: the json array to filter.\n* searchField: the name of a json object in the array \n* the text to search for in that object \n\nFor example, the code below returns 2 rows where the letter 'o' is containted in lastname\n\n###### javascript\n```js\nvar str = require('nativescript-utils').str\nvar data = {\"employees\":[\n    {\"firstName\":\"John\", \"lastName\":\"Doe\"},\n    {\"firstName\":\"Anna\", \"lastName\":\"Smith\"},\n    {\"firstName\":\"Peter\", \"lastName\":\"Jones\"}\n]};\nvar filteredData = str.filterArray(data,\"lastName\",\"o\");\n```\n###### typescript\n```ts\nimport {str} from 'nativescript-utils';\nvar data = {\"employees\":[\n    {\"firstName\":\"John\", \"lastName\":\"Doe\"},\n    {\"firstName\":\"Anna\", \"lastName\":\"Smith\"},\n    {\"firstName\":\"Peter\", \"lastName\":\"Jones\"}\n]};\nvar filteredData = str.filterArray(data,\"lastName\",\"o\");\n```\n",
+  "readme": "NativeScript Utils",
   "readmeFilename": "README.md",
   "gitHead": "f269ba1d1557fa05cca717f21027efbbfdc38f0d",
   "bugs": {
     "url": "https://github.com/nicoleza/nativescript-utils/issues"
   },
   "homepage": "https://github.com/nicoleza/nativescript-utils#readme",
-  "_id": "nativescript-utils@1.0.14",
+  "_id": "nativescript-utils@1.0.16",
   "scripts": {},
-  "_shasum": "ae4234d953823fb731e5de191ba11aad92f7a668",
-  "_from": "nativescript-utils@1.0.14"
+  "_shasum": "35041ee053204fcd4a939cf2e9d71e11846f226e",
+  "_from": "nativescript-utils@*"
 }
