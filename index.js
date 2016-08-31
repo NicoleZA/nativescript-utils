@@ -167,6 +167,13 @@ var Str = (function () {
     Str.prototype.getArrayObjects = function (array, objectName) {
         return array.map(function (x) { return x[objectName]; });
     };
+    /** replaces an existing observableArrays data with a new array  */
+    Str.prototype.replaceArray = function (array, withArray) {
+        array.splice(0);
+        for (var index = 0; index < withArray.length; index++) {
+            array.push(withArray[index]);
+        }
+    };
     return Str;
 }());
 /** Date Functions */

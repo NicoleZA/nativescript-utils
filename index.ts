@@ -169,7 +169,15 @@ class Str {
 	/** Extract objects from array  */
 	public getArrayObjects (array: Array<any>, objectName: string) : Array<any> {
 		return array.map(function (x) { return x[objectName]; });
-	}	
+	}
+
+	/** replaces an existing observableArrays data with a new array  */
+	public replaceArray(array: ObservableArray<any>, withArray: any) {
+        array.splice(0);
+        for (var index = 0; index < withArray.length; index++) {
+                array.push(withArray[index]);   
+        }
+  }	
 
 }
 
