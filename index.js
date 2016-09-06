@@ -276,6 +276,11 @@ var ValueList = (function () {
         }
         return this.items[index].DisplayMember;
     };
+    /** get an array of the items text field  */
+    ValueList.prototype.getTextArray = function () {
+        var me = this;
+        return me.items.map(function (x) { return x.DisplayMember; });
+    };
     /** get the items value by its index */
     ValueList.prototype.getValue = function (index) {
         if (index < 0 || index >= this.items.length) {
@@ -283,15 +288,15 @@ var ValueList = (function () {
         }
         return this.items[index].ValueMember;
     };
-    /** get the items index by its value */
-    ValueList.prototype.getIndex = function (value) {
+    /** get the items index by its value, use default index if not found else return -1 */
+    ValueList.prototype.getIndex = function (value, defaultIndex) {
         var loop;
         for (loop = 0; loop < this.items.length; loop++) {
             if (this.getValue(loop) == value) {
                 return loop;
             }
         }
-        return -1;
+        return defaultIndex == null ? -1 : defaultIndex;
     };
     return ValueList;
 }());

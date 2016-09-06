@@ -29,8 +29,8 @@
     "url": "https://github.com/nicoleza/nativescript-utils/issues"
   },
   "homepage": "https://github.com/nicoleza/nativescript-utils#readme",
-  "_id": "nativescript-utils@1.0.18",
+  "_id": "nativescript-utils@1.0.19",
   "scripts": {},
-  "_shasum": "de27c6b0b50342693af44c3c4ace974aa54411a7",
-  "_from": "nativescript-utils@>=1.0.16 <2.0.0"
+  "_shasum": "214403680b5dfbd1a7dffae6064df6b4cc9c7364",
+  "_from": "nativescript-utils@1.0.19"
 }

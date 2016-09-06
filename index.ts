@@ -283,6 +283,11 @@ export class ValueList {
         }
         return this.items[index].DisplayMember;
     }
+	/** get an array of the items text field  */
+	public getTextArray () : Array<any> {
+		var me = this;
+		return me.items.map(function (x: IValueItem) { return x.DisplayMember; });
+	}
 
 	/** get the items value by its index */
     public getValue(index: number) {
@@ -292,15 +297,16 @@ export class ValueList {
         return this.items[index].ValueMember;
     }
 
-	/** get the items index by its value */
-    public getIndex(value: any): number {
+	/** get the items index by its value, use default index if not found else return -1 */
+	
+    public getIndex(value: any, defaultIndex?: number): number {
         let loop: number;
         for (loop = 0; loop < this.items.length; loop++) {
             if (this.getValue(loop) == value) {
                 return loop;
             }
         }
-        return -1;
+        return defaultIndex == null ? -1 : defaultIndex ;
     }
 }
 
