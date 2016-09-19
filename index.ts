@@ -4,6 +4,7 @@ import {ObservableArray} from "data/observable-array";
 import {isAndroid} from "platform";
 import view = require("ui/core/view");
 import * as observableModule from "data/observable";
+import * as fileSystemModule from "file-system";
 
 /** Tagging Functions */
 class Tagging {
@@ -18,7 +19,10 @@ class Tagging {
 	*/
 	public newTag(icon?: string): observableModule.Observable {
 		if (!icon) icon = this.unTagIcon;
-		return new observableModule.Observable({ value: icon });
+		var a = new observableModule.Observable();
+		a.set("value", icon);
+		return a;
+		//		return new observableModule.Observable({ value: icon });
 	}
 
 	/** set all array objects tag property to the default tagged icon object */
@@ -174,13 +178,23 @@ class Str {
 	/** replaces an existing observableArrays data with a new array  */
 	public replaceArray(array: ObservableArray<any>, withArray: any) {
         array.splice(0);
-		this.appendArray(array,withArray)
+		this.appendArray(array, withArray)
 	}
 
 	/** appends an existing observableArrays data with a new array  */
 	public appendArray(array: ObservableArray<any>, withArray: any) {
-        for (var index = 0; index < withArray.length; index++) {
-			array.push(withArray[index]);
+		//	observable array causes problems if the array item is not an observable.
+		//  for (var index = 0; index < withArray.length; index++) {
+		// 	  array.push(withArray[index]);
+		//  }
+
+		for (var index = 0; index < withArray.length; index++) {
+			var row = withArray[index];
+			var oRow = new observableModule.Observable();
+			Object.keys(row).forEach(function (key) {
+				oRow.set(key, row[key]);
+			});
+			array.push(oRow);
         }
 	}
 
@@ -224,11 +238,20 @@ class Dt {
 }
 
 class ViewExt {
+
+	/** remove the focus from a view object */
+	public clearAndDismiss(view: view.View) {
+		if (!view) return;
+		this.dismissSoftInput(view);
+		this.clearFocus(view);
+	}
+
 	/** remove the focus from a view object */
 	public clearFocus(view: view.View) {
 		if (!view) return;
         if (isAndroid) if (view.android) view.android.clearFocus();
 	}
+
 	/** hide the soft keyboard from a view object */
 	public dismissSoftInput(view: view.View) {
 		if (!view) return;
@@ -315,8 +338,58 @@ export class ValueList {
     }
 }
 
+class File {
+
+	public folder = fileSystemModule.knownFolders.documents();
+
+	/** load json from a file */
+	public loadJSONFile(fileName: string) {
+		var me = this;
+        return new Promise(function (resolve, reject) {
+			var file = me.folder.getFile(fileName);
+			file.readText().then(function (content) {
+				resolve(JSON.parse(content));
+			}).catch(function (err) {
+				reject(err);
+			});
+        });
+	}
+
+	/** save json to a file */
+	public saveJSONFile(fileName: string, data) {
+		var me = this;
+		return new Promise(function (resolve, reject) {
+			var file = me.folder.getFile(fileName);
+			file.writeText(JSON.stringify(data)).then(function (content) {
+				resolve(content);
+			}).catch(function (err) {
+				reject(err);
+			});
+        });
+	}
+
+	//** empty the file */
+	public clearJSONFile(fileName: string, data) {
+		var file = this.folder.getFile(fileName);
+		file.writeText(JSON.stringify({}));
+	}
+
+	//** create a full filename including the folder for the current app */
+	public getFullFileName(fileName: string) {
+		var me = this;
+		return fileSystemModule.path.join(me.folder.path, fileName);
+	}
+	// public deleteFile(fileName: string) {
+	// 	var file = fileSystemModule.knownFolders.documents().getFile(fileName);
+	// 	file.
+	// }
+
+}
+
+
 export var tagging = new Tagging();
 export var str = new Str();
 export var sql = new Sql();
 export var dt = new Dt();
 export var viewExt = new ViewExt();
+export var file = new File();

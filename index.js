@@ -4,6 +4,7 @@ exports.moment = require("moment");
 var observable_array_1 = require("data/observable-array");
 var platform_1 = require("platform");
 var observableModule = require("data/observable");
+var fileSystemModule = require("file-system");
 /** Tagging Functions */
 var Tagging = (function () {
     function Tagging() {
@@ -18,7 +19,10 @@ var Tagging = (function () {
     Tagging.prototype.newTag = function (icon) {
         if (!icon)
             icon = this.unTagIcon;
-        return new observableModule.Observable({ value: icon });
+        var a = new observableModule.Observable();
+        a.set("value", icon);
+        return a;
+        //		return new observableModule.Observable({ value: icon });
     };
     /** set all array objects tag property to the default tagged icon object */
     Tagging.prototype.tagAll = function (array) {
@@ -170,8 +174,21 @@ var Str = (function () {
     /** replaces an existing observableArrays data with a new array  */
     Str.prototype.replaceArray = function (array, withArray) {
         array.splice(0);
+        this.appendArray(array, withArray);
+    };
+    /** appends an existing observableArrays data with a new array  */
+    Str.prototype.appendArray = function (array, withArray) {
+        //	observable array causes problems if the array item is not an observable.
+        //  for (var index = 0; index < withArray.length; index++) {
+        // 	  array.push(withArray[index]);
+        //  }
         for (var index = 0; index < withArray.length; index++) {
-            array.push(withArray[index]);
+            var row = withArray[index];
+            var oRow = new observableModule.Observable();
+            Object.keys(row).forEach(function (key) {
+                oRow.set(key, row[key]);
+            });
+            array.push(oRow);
         }
     };
     return Str;
@@ -219,6 +236,13 @@ var Dt = (function () {
 var ViewExt = (function () {
     function ViewExt() {
     }
+    /** remove the focus from a view object */
+    ViewExt.prototype.clearAndDismiss = function (view) {
+        if (!view)
+            return;
+        this.dismissSoftInput(view);
+        this.clearFocus(view);
+    };
     /** remove the focus from a view object */
     ViewExt.prototype.clearFocus = function (view) {
         if (!view)
@@ -301,9 +325,50 @@ var ValueList = (function () {
     return ValueList;
 }());
 exports.ValueList = ValueList;
+var File = (function () {
+    function File() {
+        this.folder = fileSystemModule.knownFolders.documents();
+    }
+    /** load json from a file */
+    File.prototype.loadJSONFile = function (fileName) {
+        var me = this;
+        return new Promise(function (resolve, reject) {
+            var file = me.folder.getFile(fileName);
+            file.readText().then(function (content) {
+                resolve(JSON.parse(content));
+            }).catch(function (err) {
+                reject(err);
+            });
+        });
+    };
+    /** save json to a file */
+    File.prototype.saveJSONFile = function (fileName, data) {
+        var me = this;
+        return new Promise(function (resolve, reject) {
+            var file = me.folder.getFile(fileName);
+            file.writeText(JSON.stringify(data)).then(function (content) {
+                resolve(content);
+            }).catch(function (err) {
+                reject(err);
+            });
+        });
+    };
+    //** empty the file */
+    File.prototype.clearJSONFile = function (fileName, data) {
+        var file = this.folder.getFile(fileName);
+        file.writeText(JSON.stringify({}));
+    };
+    //** create a full filename including the folder for the current app */
+    File.prototype.getFullFileName = function (fileName) {
+        var me = this;
+        return fileSystemModule.path.join(me.folder.path, fileName);
+    };
+    return File;
+}());
 exports.tagging = new Tagging();
 exports.str = new Str();
 exports.sql = new Sql();
 exports.dt = new Dt();
 exports.viewExt = new ViewExt();
+exports.file = new File();
 //# sourceMappingURL=index.js.map
