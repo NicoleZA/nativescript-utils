@@ -198,6 +198,15 @@ class Str {
         }
 	}
 
+	public EnumToArray(EnumObj): string[] {
+		var returnValue = [];
+		Object.keys(EnumObj).forEach(function (key) {
+			if (typeof EnumObj[key] === "string") returnValue.push(EnumObj[key]);
+		});
+		return returnValue;
+	}
+
+
 }
 
 /** Date Functions */
@@ -343,12 +352,20 @@ class File {
 	public folder = fileSystemModule.knownFolders.documents();
 
 	/** load json from a file */
-	public loadJSONFile(fileName: string) {
+	public exists(filename: string) {
+		var me = this;
+        return me.folder.contains(filename);
+	}
+
+	/** load json from a file */
+	public loadJSONFile(filename: string) {
 		var me = this;
         return new Promise(function (resolve, reject) {
-			var file = me.folder.getFile(fileName);
+			var file = me.folder.getFile(filename);
 			file.readText().then(function (content) {
-				resolve(JSON.parse(content));
+				var returnValue = null;
+				if (content != "") JSON.parse(content);
+				resolve(returnValue);
 			}).catch(function (err) {
 				reject(err);
 			});
@@ -356,10 +373,10 @@ class File {
 	}
 
 	/** save json to a file */
-	public saveJSONFile(fileName: string, data) {
+	public saveJSONFile(filename: string, data) {
 		var me = this;
 		return new Promise(function (resolve, reject) {
-			var file = me.folder.getFile(fileName);
+			var file = me.folder.getFile(filename);
 			file.writeText(JSON.stringify(data)).then(function (content) {
 				resolve(content);
 			}).catch(function (err) {
@@ -369,18 +386,18 @@ class File {
 	}
 
 	//** empty the file */
-	public clearJSONFile(fileName: string, data) {
-		var file = this.folder.getFile(fileName);
+	public clearJSONFile(filename: string, data) {
+		var file = this.folder.getFile(filename);
 		file.writeText(JSON.stringify({}));
 	}
 
 	//** create a full filename including the folder for the current app */
-	public getFullFileName(fileName: string) {
+	public getFullFilename(party: string) {
 		var me = this;
-		return fileSystemModule.path.join(me.folder.path, fileName);
+		return fileSystemModule.path.join(me.folder.path, party);
 	}
-	// public deleteFile(fileName: string) {
-	// 	var file = fileSystemModule.knownFolders.documents().getFile(fileName);
+	// public deleteFile(party: string) {
+	// 	var file = fileSystemModule.knownFolders.documents().getFile(party);
 	// 	file.
 	// }
 

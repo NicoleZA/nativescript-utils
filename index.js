@@ -191,6 +191,14 @@ var Str = (function () {
             array.push(oRow);
         }
     };
+    Str.prototype.EnumToArray = function (EnumObj) {
+        var returnValue = [];
+        Object.keys(EnumObj).forEach(function (key) {
+            if (typeof EnumObj[key] === "string")
+                returnValue.push(EnumObj[key]);
+        });
+        return returnValue;
+    };
     return Str;
 }());
 /** Date Functions */
@@ -330,22 +338,30 @@ var File = (function () {
         this.folder = fileSystemModule.knownFolders.documents();
     }
     /** load json from a file */
-    File.prototype.loadJSONFile = function (fileName) {
+    File.prototype.exists = function (filename) {
+        var me = this;
+        return me.folder.contains(filename);
+    };
+    /** load json from a file */
+    File.prototype.loadJSONFile = function (filename) {
         var me = this;
         return new Promise(function (resolve, reject) {
-            var file = me.folder.getFile(fileName);
+            var file = me.folder.getFile(filename);
             file.readText().then(function (content) {
-                resolve(JSON.parse(content));
+                var returnValue = null;
+                if (content != "")
+                    JSON.parse(content);
+                resolve(returnValue);
             }).catch(function (err) {
                 reject(err);
             });
         });
     };
     /** save json to a file */
-    File.prototype.saveJSONFile = function (fileName, data) {
+    File.prototype.saveJSONFile = function (filename, data) {
         var me = this;
         return new Promise(function (resolve, reject) {
-            var file = me.folder.getFile(fileName);
+            var file = me.folder.getFile(filename);
             file.writeText(JSON.stringify(data)).then(function (content) {
                 resolve(content);
             }).catch(function (err) {
@@ -354,14 +370,14 @@ var File = (function () {
         });
     };
     //** empty the file */
-    File.prototype.clearJSONFile = function (fileName, data) {
-        var file = this.folder.getFile(fileName);
+    File.prototype.clearJSONFile = function (filename, data) {
+        var file = this.folder.getFile(filename);
         file.writeText(JSON.stringify({}));
     };
     //** create a full filename including the folder for the current app */
-    File.prototype.getFullFileName = function (fileName) {
+    File.prototype.getFullFilename = function (party) {
         var me = this;
-        return fileSystemModule.path.join(me.folder.path, fileName);
+        return fileSystemModule.path.join(me.folder.path, party);
     };
     return File;
 }());
