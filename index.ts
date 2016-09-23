@@ -137,7 +137,7 @@ class Str {
 		var filteredData = data.filter(function (x) {
 
 			for (var i = 0; i < searchField.length; i++) {
-				if (x[searchField[i]] && x[searchField[i]].toLowerCase().indexOf(searchText) >= 0) return true;
+				if (x[searchField[i]] && x[searchField[i]].toString().toLowerCase().indexOf(searchText) >= 0) return true;
 			}
 			return false;
 
@@ -158,6 +158,22 @@ class Str {
 		return array.filter(function (obj) {
 			return obj[searchField] == searchValue;
 		});
+	}
+
+
+	/** return a filtered array where the named fields(properties) contains specific text (case insensitive) */
+	public getArrayItemsByArray(data: any[], searchField: string[], searchText: string) {
+		if (!searchText) return data;
+		searchText = searchText.toLowerCase()
+		var filteredData = data.filter(function (x) {
+
+			for (var i = 0; i < searchField.length; i++) {
+				if (x[searchField[i]] && x[searchField[i]].toString().toLowerCase().indexOf(searchText) >= 0) return true;
+			}
+			return false;
+
+		});
+		return filteredData;
 	}
 
 	/** get the first item from an array where the named field(property) contains specific text (case insensitive) */
@@ -187,7 +203,7 @@ class Str {
 		//  for (var index = 0; index < withArray.length; index++) {
 		// 	  array.push(withArray[index]);
 		//  }
-
+		if(!withArray) return;
 		for (var index = 0; index < withArray.length; index++) {
 			var row = withArray[index];
 			var oRow = new observableModule.Observable();
@@ -364,7 +380,7 @@ class File {
 			var file = me.folder.getFile(filename);
 			file.readText().then(function (content) {
 				var returnValue = null;
-				if (content != "") JSON.parse(content);
+				if (content != "") returnValue = JSON.parse(content);
 				resolve(returnValue);
 			}).catch(function (err) {
 				reject(err);

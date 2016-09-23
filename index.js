@@ -138,7 +138,7 @@ var Str = (function () {
         searchText = searchText.toLowerCase();
         var filteredData = data.filter(function (x) {
             for (var i = 0; i < searchField.length; i++) {
-                if (x[searchField[i]] && x[searchField[i]].toLowerCase().indexOf(searchText) >= 0)
+                if (x[searchField[i]] && x[searchField[i]].toString().toLowerCase().indexOf(searchText) >= 0)
                     return true;
             }
             return false;
@@ -158,6 +158,20 @@ var Str = (function () {
         return array.filter(function (obj) {
             return obj[searchField] == searchValue;
         });
+    };
+    /** return a filtered array where the named fields(properties) contains specific text (case insensitive) */
+    Str.prototype.getArrayItemsByArray = function (data, searchField, searchText) {
+        if (!searchText)
+            return data;
+        searchText = searchText.toLowerCase();
+        var filteredData = data.filter(function (x) {
+            for (var i = 0; i < searchField.length; i++) {
+                if (x[searchField[i]] && x[searchField[i]].toString().toLowerCase().indexOf(searchText) >= 0)
+                    return true;
+            }
+            return false;
+        });
+        return filteredData;
     };
     /** get the first item from an array where the named field(property) contains specific text (case insensitive) */
     Str.prototype.getArrayItem = function (array, searchField, searchValue) {
@@ -182,6 +196,8 @@ var Str = (function () {
         //  for (var index = 0; index < withArray.length; index++) {
         // 	  array.push(withArray[index]);
         //  }
+        if (!withArray)
+            return;
         for (var index = 0; index < withArray.length; index++) {
             var row = withArray[index];
             var oRow = new observableModule.Observable();
@@ -350,7 +366,7 @@ var File = (function () {
             file.readText().then(function (content) {
                 var returnValue = null;
                 if (content != "")
-                    JSON.parse(content);
+                    returnValue = JSON.parse(content);
                 resolve(returnValue);
             }).catch(function (err) {
                 reject(err);
