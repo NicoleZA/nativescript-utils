@@ -217,7 +217,7 @@ class Str {
 	public EnumToArray(EnumObj): string[] {
 		var returnValue = [];
 		Object.keys(EnumObj).forEach(function (key) {
-			if (typeof EnumObj[key] === "string") returnValue.push(EnumObj[key]);
+			if (typeof key === "string") returnValue.push(key.replace(/_/g, " "));
 		});
 		return returnValue;
 	}
