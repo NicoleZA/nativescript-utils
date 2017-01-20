@@ -1,6 +1,6 @@
 {
   "name": "nativescript-utils",
-  "version": "1.0.26",
+  "version": "1.0.27",
   "description": "Useful collection of functions",
   "main": "index.js",
   "author": {
@@ -29,8 +29,8 @@
     "url": "https://github.com/nicoleza/nativescript-utils/issues"
   },
   "homepage": "https://github.com/nicoleza/nativescript-utils#readme",
-  "_id": "nativescript-utils@1.0.25",
+  "_id": "nativescript-utils@1.0.26",
   "scripts": {},
-  "_shasum": "e5437601df3d572f5ab7e1b8a420e52987004793",
-  "_from": "nativescript-utils@1.0.25"
+  "_shasum": "e286233601620316a030f98ed8e611507162d464",
+  "_from": "nativescript-utils@1.0.26"
 }

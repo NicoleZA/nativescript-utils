@@ -51,8 +51,13 @@ class Tagging {
 	}
 	/** Toggle the rows tag property */
 	public toggleRow(row: any): any {
+		var me = this;
 		if (!row) return null;
-		row.tag = this.newTag(this.toggleTagIcon(row.tag));
+        if (!row.tag) row.tag = me.newTag();
+        var icon = row.tag.get("value");
+		console.log(icon);
+        row.tag.set("value", me.toggleTagIcon(icon));
+//		row.tag = this.newTag(this.toggleTagIcon(row.tag));
 		return row;
 	}
 
