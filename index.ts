@@ -1,7 +1,8 @@
 export var sf = require('sf');
-export var moment = require("moment");
-import {ObservableArray} from "data/observable-array";
-import {isAndroid} from "platform";
+//export var moment = require("moment");
+import { ObservableArray } from "data/observable-array";
+import { isAndroid } from "platform";
+import * as moment from "moment";
 import view = require("ui/core/view");
 import * as observableModule from "data/observable";
 import * as fileSystemModule from "file-system";
@@ -27,9 +28,9 @@ class Tagging {
 
 	/** set all array objects tag property to the default tagged icon object */
 	public tagAll(array: any[]): any[] {
-		var me = this;
 		for (var i = 0; i < array.length; i++) {
-			array[i].tag = me.newTag(me.tagIcon);
+			if (!array[i].tag) array[i].tag = tagging.newTag();
+			array[i].tag.set("value", tagging.tagIcon);
 		}
 		return array;
 	}
@@ -37,7 +38,8 @@ class Tagging {
 	public unTagAll(array: any[]): any[] {
 		var me = this;
 		for (var i = 0; i < array.length; i++) {
-			array[i].tag = me.newTag();
+			if (!array[i].tag) array[i].tag = tagging.newTag();
+			array[i].tag.set("value", tagging.unTagIcon);
 		}
 		return array;
 	}
@@ -49,15 +51,21 @@ class Tagging {
 			return this.tagIcon;
 		}
 	}
+
+	/** Toggle tag observable */
+	public toggleTag(tag: any): any {
+		var me = this;
+		if (!tag) tag = tagging.newTag();
+		var icon = tagging.toggleTagIcon(tag.get("value"));
+		tag.set("value", icon);
+		return tag;
+	}
+
 	/** Toggle the rows tag property */
 	public toggleRow(row: any): any {
 		var me = this;
 		if (!row) return null;
-        if (!row.tag) row.tag = me.newTag();
-        var icon = row.tag.get("value");
-		console.log(icon);
-        row.tag.set("value", me.toggleTagIcon(icon));
-//		row.tag = this.newTag(this.toggleTagIcon(row.tag));
+		me.toggleTag(row.tag);
 		return row;
 	}
 
@@ -68,7 +76,7 @@ class Tagging {
 	/** Toggle the observable rows tag object */
 	public toggleObservableRow(array: ObservableArray<any>, index: number): ObservableArray<any> {
 		var row = this.toggleRow(array.getItem(index));
-        array.setItem(index, row);
+		array.setItem(index, row);
 		return array;
 	}
 
@@ -152,11 +160,11 @@ class Str {
 
 	/** return true if a string contains any item in the substring array) */
 	public containsAny(str: string, substrings: string[]): boolean {
-        for (var i = 0; i != substrings.length; i++) {
+		for (var i = 0; i != substrings.length; i++) {
 			if (str.indexOf(substrings[i]) != - 1) return true;
-        }
-        return false;
-    }
+		}
+		return false;
+	}
 
 	/** return a filtered array where the named field(property) contains specific text (case insensitive) */
 	public getArrayItems(array: any[], searchField: string, searchValue: any) {
@@ -198,7 +206,7 @@ class Str {
 
 	/** replaces an existing observableArrays data with a new array  */
 	public replaceArray(array: ObservableArray<any>, withArray: any) {
-        array.splice(0);
+		array.splice(0);
 		this.appendArray(array, withArray)
 	}
 
@@ -208,7 +216,7 @@ class Str {
 		//  for (var index = 0; index < withArray.length; index++) {
 		// 	  array.push(withArray[index]);
 		//  }
-		if(!withArray) return;
+		if (!withArray) return;
 		for (var index = 0; index < withArray.length; index++) {
 			var row = withArray[index];
 			var oRow = new observableModule.Observable();
@@ -216,14 +224,14 @@ class Str {
 				oRow.set(key, row[key]);
 			});
 			array.push(oRow);
-        }
+		}
 	}
 
 	public EnumToArray(EnumObj): string[] {
 		var returnValue = [];
-		Object.keys(EnumObj).forEach(function (key) {
-			if (typeof key === "string") returnValue.push(key.replace(/_/g, " "));
-		});
+		for (var key in EnumObj) {
+			if (typeof EnumObj[key] === "string") returnValue.push(EnumObj[key].replace(/_/g, " "));
+		};
 		return returnValue;
 	}
 
@@ -232,6 +240,80 @@ class Str {
 
 /** Date Functions */
 class Dt {
+
+	public moment(date?: Date): moment.Moment {
+		if (!date) {
+			return moment();
+		} else {
+			return moment(date);
+		}
+	}
+
+	//Years -------------------------------------------------------------------------------
+	/** add a year to a date */
+	public dateAddYears(day: number, date?: Date): Date {
+		if (!date) date = new Date();
+		return moment(date).add(day, 'years').toDate();
+	}
+	/** start of year */
+	public dateYearStart(date?: Date, addYears?: number): Date {
+		if (!date) date = new Date();
+		return moment(date).startOf('year').add(addYears || 0,"years").toDate();
+	}
+
+	/** end of year */
+	public dateYearEnd(date?: Date, addYears?: number): Date {
+		if (!date) date = new Date();
+		return moment(date).endOf('year').add(addYears || 0,"years").toDate();
+	}
+
+	//Months ------------------------------------------------------------------------------
+	/** add a month to a date */
+	public dateAddMonths(day: number, date?: Date): Date {
+		if (!date) date = new Date();
+		return moment(date).add(day, 'months').toDate();
+	}
+	/** start of month */
+	public dateMonthStart(date?: Date, addMonths?: number): Date {
+		if (!date) date = new Date();
+		return moment(date).startOf('month').add(addMonths || 0,'months').toDate();
+	}
+
+	/** end of month */
+	public dateMonthEnd(date?: Date, addMonths?: number): Date {
+		if (!date) date = new Date();
+		return moment(date).endOf('month').add(addMonths || 0,'months').toDate();
+	}
+
+	//Days --------------------------------------------------------------------------------
+	/** add a day to a date */
+	public dateAddDays(day: number, date?: Date): Date {
+		if (!date) date = new Date();
+		return moment(date).add(day, 'days').toDate();
+	}
+
+	//Weeks -------------------------------------------------------------------------------
+	/** start of week */
+	public dateWeekStart(date?: Date, addWeeks?: number): Date {
+		if (!date) date = new Date();
+		return  moment(date).startOf('isoWeek').add(addWeeks || 0,'weeks').toDate();
+	}
+	/** end of week */
+	public dateWeekEnd(date?: Date, addWeeks?: number): Date {
+		if (!date) date = new Date();
+		return moment(date).endOf('isoWeek').add(addWeeks || 0,'weeks').toDate();
+	}
+
+
+	//convert to string -------------------------------------------------------------------------------
+	/** convert a date to a string (YYYY-MM-DD) */
+	public dateToStrYMD(date?: Date): string {
+		if (!date) {
+			return moment().format('YYYY-MM-DD');
+		} else {
+			return moment(date).format('YYYY-MM-DD');
+		}
+	}
 
 	/** convert a date to a string (DD/MM/YYYY) */
 	public dateToStr(date?: Date): string {
@@ -259,7 +341,8 @@ class Dt {
 		}
 	}
 	/** convert a date to a clarion date */
-	public clarionDate(date: Date): number {
+	public clarionDate(date?: Date): number {
+		if (!date) date = new Date();
 		var oneDay = 24 * 60 * 60 * 1000; // hours*minutes*seconds*milliseconds
 		var startDate = new Date("December 28, 1800");
 		var diffDays = Math.round(Math.abs((date.getTime() - startDate.getTime()) / (oneDay)))
@@ -279,7 +362,7 @@ class ViewExt {
 	/** remove the focus from a view object */
 	public clearFocus(view: view.View) {
 		if (!view) return;
-        if (isAndroid) if (view.android) view.android.clearFocus();
+		if (isAndroid) if (view.android) view.android.clearFocus();
 	}
 
 	/** hide the soft keyboard from a view object */
@@ -294,53 +377,53 @@ class ViewExt {
 }
 
 export interface IValueItem {
-    ValueMember: any
-    DisplayMember: string
+	ValueMember: any
+	DisplayMember: string
 }
 
 /** a value list array */
 export class ValueList {
 
 	/** this array of value items */
-    private items: Array<IValueItem>;
+	private items: Array<IValueItem>;
 
 	/** the number of items */
-    get length(): number { return this.items.length; }
+	get length(): number { return this.items.length; }
 
-    constructor(array: Array<IValueItem>) {
-        this.items = array;
-    }
+	constructor(array: Array<IValueItem>) {
+		this.items = array;
+	}
 
 	/** add a new item to the list */
-    public addItem(item: IValueItem) {
-        this.items.push(item);
-    }
+	public addItem(item: IValueItem) {
+		this.items.push(item);
+	}
 
 	/** add a new item to the beginning of the list */
-    public addItemFront(item: IValueItem) {
-        this.items.unshift(item);
-    }
+	public addItemFront(item: IValueItem) {
+		this.items.unshift(item);
+	}
 
 	/** get the list of value items */
-    public getItems(): Array<IValueItem> {
-        return this.items;
-    }
+	public getItems(): Array<IValueItem> {
+		return this.items;
+	}
 
 	/** get an item by its index */
-    public getItem(index: number): IValueItem {
-        if (index < 0 || index >= this.items.length) {
-            return null;
-        }
-        return this.items[index];
-    }
+	public getItem(index: number): IValueItem {
+		if (index < 0 || index >= this.items.length) {
+			return null;
+		}
+		return this.items[index];
+	}
 
 	/** get the items display value by its index */
-    public getText(index: number): string {
-        if (index < 0 || index >= this.items.length) {
-            return "";
-        }
-        return this.items[index].DisplayMember;
-    }
+	public getText(index: number): string {
+		if (index < 0 || index >= this.items.length) {
+			return "";
+		}
+		return this.items[index].DisplayMember;
+	}
 	/** get an array of the items text field  */
 	public getTextArray(): Array<any> {
 		var me = this;
@@ -348,24 +431,24 @@ export class ValueList {
 	}
 
 	/** get the items value by its index */
-    public getValue(index: number) {
-        if (index < 0 || index >= this.items.length) {
-            return null;
-        }
-        return this.items[index].ValueMember;
-    }
+	public getValue(index: number) {
+		if (index < 0 || index >= this.items.length) {
+			return null;
+		}
+		return this.items[index].ValueMember;
+	}
 
 	/** get the items index by its value, use default index if not found else return -1 */
 
-    public getIndex(value: any, defaultIndex?: number): number {
-        let loop: number;
-        for (loop = 0; loop < this.items.length; loop++) {
-            if (this.getValue(loop) == value) {
-                return loop;
-            }
-        }
-        return defaultIndex == null ? -1 : defaultIndex;
-    }
+	public getIndex(value: any, defaultIndex?: number): number {
+		let loop: number;
+		for (loop = 0; loop < this.items.length; loop++) {
+			if (this.getValue(loop) == value) {
+				return loop;
+			}
+		}
+		return defaultIndex == null ? -1 : defaultIndex;
+	}
 }
 
 class File {
@@ -375,13 +458,13 @@ class File {
 	/** load json from a file */
 	public exists(filename: string) {
 		var me = this;
-        return me.folder.contains(filename);
+		return me.folder.contains(filename);
 	}
 
 	/** load json from a file */
 	public loadJSONFile(filename: string) {
 		var me = this;
-        return new Promise(function (resolve, reject) {
+		return new Promise(function (resolve, reject) {
 			var file = me.folder.getFile(filename);
 			file.readText().then(function (content) {
 				var returnValue = null;
@@ -390,7 +473,7 @@ class File {
 			}).catch(function (err) {
 				reject(err);
 			});
-        });
+		});
 	}
 
 	/** save json to a file */
@@ -403,7 +486,7 @@ class File {
 			}).catch(function (err) {
 				reject(err);
 			});
-        });
+		});
 	}
 
 	//** empty the file */
