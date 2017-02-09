@@ -1,6 +1,6 @@
 {
   "name": "nativescript-utils",
-  "version": "1.0.27",
+  "version": "1.0.28",
   "description": "Useful collection of functions",
   "main": "index.js",
   "author": {
@@ -11,10 +11,7 @@
     "type": "git",
     "url": "git+https://github.com/nicoleza/nativescript-utils.git"
   },
-  "license": {
-    "type": "MIT",
-    "url": "https://github.com/nicoleza/nativescript-utils/blob/master/LICENSE"
-  },
+  "license":"MIT",
   "keywords": [
     "nativescript utils"
   ],
@@ -23,14 +20,8 @@
     "sf": "^0.1.8"
   },
   "readme": "NativeScript Utils",
-  "readmeFilename": "README.md",
-  "gitHead": "f269ba1d1557fa05cca717f21027efbbfdc38f0d",
   "bugs": {
     "url": "https://github.com/nicoleza/nativescript-utils/issues"
   },
   "homepage": "https://github.com/nicoleza/nativescript-utils#readme",
-  "_id": "nativescript-utils@1.0.26",
-  "scripts": {},
-  "_shasum": "e286233601620316a030f98ed8e611507162d464",
-  "_from": "nativescript-utils@1.0.26"
 }

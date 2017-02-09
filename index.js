@@ -1,8 +1,9 @@
 "use strict";
 exports.sf = require('sf');
-exports.moment = require("moment");
+//export var moment = require("moment");
 var observable_array_1 = require("data/observable-array");
 var platform_1 = require("platform");
+var moment = require("moment");
 var observableModule = require("data/observable");
 var fileSystemModule = require("file-system");
 /** Tagging Functions */
@@ -26,9 +27,10 @@ var Tagging = (function () {
     };
     /** set all array objects tag property to the default tagged icon object */
     Tagging.prototype.tagAll = function (array) {
-        var me = this;
         for (var i = 0; i < array.length; i++) {
-            array[i].tag = me.newTag(me.tagIcon);
+            if (!array[i].tag)
+                array[i].tag = exports.tagging.newTag();
+            array[i].tag.set("value", exports.tagging.tagIcon);
         }
         return array;
     };
@@ -36,7 +38,9 @@ var Tagging = (function () {
     Tagging.prototype.unTagAll = function (array) {
         var me = this;
         for (var i = 0; i < array.length; i++) {
-            array[i].tag = me.newTag();
+            if (!array[i].tag)
+                array[i].tag = exports.tagging.newTag();
+            array[i].tag.set("value", exports.tagging.unTagIcon);
         }
         return array;
     };
@@ -49,11 +53,21 @@ var Tagging = (function () {
             return this.tagIcon;
         }
     };
+    /** Toggle tag observable */
+    Tagging.prototype.toggleTag = function (tag) {
+        var me = this;
+        if (!tag)
+            tag = exports.tagging.newTag();
+        var icon = exports.tagging.toggleTagIcon(tag.get("value"));
+        tag.set("value", icon);
+        return tag;
+    };
     /** Toggle the rows tag property */
     Tagging.prototype.toggleRow = function (row) {
+        var me = this;
         if (!row)
             return null;
-        row.tag = this.newTag(this.toggleTagIcon(row.tag));
+        me.toggleTag(row.tag);
         return row;
     };
     /** Toggle the observable tag object */
@@ -209,10 +223,11 @@ var Str = (function () {
     };
     Str.prototype.EnumToArray = function (EnumObj) {
         var returnValue = [];
-        Object.keys(EnumObj).forEach(function (key) {
+        for (var key in EnumObj) {
             if (typeof EnumObj[key] === "string")
-                returnValue.push(EnumObj[key]);
-        });
+                returnValue.push(EnumObj[key].replace(/_/g, " "));
+        }
+        ;
         return returnValue;
     };
     return Str;
@@ -221,35 +236,113 @@ var Str = (function () {
 var Dt = (function () {
     function Dt() {
     }
+    Dt.prototype.moment = function (date) {
+        if (!date) {
+            return moment();
+        }
+        else {
+            return moment(date);
+        }
+    };
+    //Years -------------------------------------------------------------------------------
+    /** add a year to a date */
+    Dt.prototype.dateAddYears = function (day, date) {
+        if (!date)
+            date = new Date();
+        return moment(date).add(day, 'years').toDate();
+    };
+    /** start of year */
+    Dt.prototype.dateYearStart = function (date, addYears) {
+        if (!date)
+            date = new Date();
+        return moment(date).startOf('year').add(addYears || 0, "years").toDate();
+    };
+    /** end of year */
+    Dt.prototype.dateYearEnd = function (date, addYears) {
+        if (!date)
+            date = new Date();
+        return moment(date).endOf('year').add(addYears || 0, "years").toDate();
+    };
+    //Months ------------------------------------------------------------------------------
+    /** add a month to a date */
+    Dt.prototype.dateAddMonths = function (day, date) {
+        if (!date)
+            date = new Date();
+        return moment(date).add(day, 'months').toDate();
+    };
+    /** start of month */
+    Dt.prototype.dateMonthStart = function (date, addMonths) {
+        if (!date)
+            date = new Date();
+        return moment(date).startOf('month').add(addMonths || 0, 'months').toDate();
+    };
+    /** end of month */
+    Dt.prototype.dateMonthEnd = function (date, addMonths) {
+        if (!date)
+            date = new Date();
+        return moment(date).endOf('month').add(addMonths || 0, 'months').toDate();
+    };
+    //Days --------------------------------------------------------------------------------
+    /** add a day to a date */
+    Dt.prototype.dateAddDays = function (day, date) {
+        if (!date)
+            date = new Date();
+        return moment(date).add(day, 'days').toDate();
+    };
+    //Weeks -------------------------------------------------------------------------------
+    /** start of week */
+    Dt.prototype.dateWeekStart = function (date, addWeeks) {
+        if (!date)
+            date = new Date();
+        return moment(date).startOf('isoWeek').add(addWeeks || 0, 'weeks').toDate();
+    };
+    /** end of week */
+    Dt.prototype.dateWeekEnd = function (date, addWeeks) {
+        if (!date)
+            date = new Date();
+        return moment(date).endOf('isoWeek').add(addWeeks || 0, 'weeks').toDate();
+    };
+    //convert to string -------------------------------------------------------------------------------
+    /** convert a date to a string (YYYY-MM-DD) */
+    Dt.prototype.dateToStrYMD = function (date) {
+        if (!date) {
+            return moment().format('YYYY-MM-DD');
+        }
+        else {
+            return moment(date).format('YYYY-MM-DD');
+        }
+    };
     /** convert a date to a string (DD/MM/YYYY) */
     Dt.prototype.dateToStr = function (date) {
         if (!date) {
-            return exports.moment().format('DD/MM/YYYY');
+            return moment().format('DD/MM/YYYY');
         }
         else {
-            return exports.moment(date).format('DD/MM/YYYY');
+            return moment(date).format('DD/MM/YYYY');
         }
     };
     /** convert a string (DD/MM/YYYY) to a date */
     Dt.prototype.strToDate = function (date) {
         if (!date) {
-            exports.moment().toDate();
+            moment().toDate();
         }
         else {
-            return exports.moment(date, 'DD/MM/YYYY').toDate();
+            return moment(date, 'DD/MM/YYYY').toDate();
         }
     };
     /** convert a date to a moment object */
     Dt.prototype.strToMoment = function (date) {
         if (!date) {
-            return exports.moment();
+            return moment();
         }
         else {
-            return exports.moment(date, 'DD/MM/YYYY');
+            return moment(date, 'DD/MM/YYYY');
         }
     };
     /** convert a date to a clarion date */
     Dt.prototype.clarionDate = function (date) {
+        if (!date)
+            date = new Date();
         var oneDay = 24 * 60 * 60 * 1000; // hours*minutes*seconds*milliseconds
         var startDate = new Date("December 28, 1800");
         var diffDays = Math.round(Math.abs((date.getTime() - startDate.getTime()) / (oneDay)));
@@ -352,6 +445,10 @@ exports.ValueList = ValueList;
 var File = (function () {
     function File() {
         this.folder = fileSystemModule.knownFolders.documents();
+        // public deleteFile(party: string) {
+        // 	var file = fileSystemModule.knownFolders.documents().getFile(party);
+        // 	file.
+        // }
     }
     /** load json from a file */
     File.prototype.exists = function (filename) {
@@ -368,7 +465,7 @@ var File = (function () {
                 if (content != "")
                     returnValue = JSON.parse(content);
                 resolve(returnValue);
-            }).catch(function (err) {
+            })["catch"](function (err) {
                 reject(err);
             });
         });
@@ -380,7 +477,7 @@ var File = (function () {
             var file = me.folder.getFile(filename);
             file.writeText(JSON.stringify(data)).then(function (content) {
                 resolve(content);
-            }).catch(function (err) {
+            })["catch"](function (err) {
                 reject(err);
             });
         });
@@ -403,4 +500,3 @@ exports.sql = new Sql();
 exports.dt = new Dt();
 exports.viewExt = new ViewExt();
 exports.file = new File();
-//# sourceMappingURL=index.js.map
