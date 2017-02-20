@@ -1,11 +1,15 @@
 "use strict";
 exports.sf = require('sf');
-//export var moment = require("moment");
-var observable_array_1 = require("data/observable-array");
-var platform_1 = require("platform");
 var moment = require("moment");
 var observableModule = require("data/observable");
 var fileSystemModule = require("file-system");
+var phone = require("nativescript-phone");
+var email = require("nativescript-email");
+var http = require("http");
+var observable_array_1 = require("data/observable-array");
+var platform_1 = require("platform");
+var utils_1 = require("utils/utils");
+var application = require("application");
 /** Tagging Functions */
 var Tagging = (function () {
     function Tagging() {
@@ -118,6 +122,7 @@ var Tagging = (function () {
     };
     return Tagging;
 }());
+exports.Tagging = Tagging;
 /** Sql Functions */
 var Sql = (function () {
     function Sql() {
@@ -129,6 +134,7 @@ var Sql = (function () {
     };
     return Sql;
 }());
+exports.Sql = Sql;
 /** String Functions */
 var Str = (function () {
     function Str() {
@@ -158,6 +164,12 @@ var Str = (function () {
             return false;
         });
         return new observable_array_1.ObservableArray(filteredData);
+    };
+    /** return true if te string is in the array */
+    Str.prototype.inList = function (value, listArray) {
+        if (listArray.indexOf(value) >= 0)
+            return true;
+        return false;
     };
     /** return true if a string contains any item in the substring array) */
     Str.prototype.containsAny = function (str, substrings) {
@@ -232,6 +244,7 @@ var Str = (function () {
     };
     return Str;
 }());
+exports.Str = Str;
 /** Date Functions */
 var Dt = (function () {
     function Dt() {
@@ -350,6 +363,7 @@ var Dt = (function () {
     };
     return Dt;
 }());
+exports.Dt = Dt;
 var ViewExt = (function () {
     function ViewExt() {
     }
@@ -380,6 +394,7 @@ var ViewExt = (function () {
     };
     return ViewExt;
 }());
+exports.ViewExt = ViewExt;
 /** a value list array */
 var ValueList = (function () {
     function ValueList(array) {
@@ -442,24 +457,35 @@ var ValueList = (function () {
     return ValueList;
 }());
 exports.ValueList = ValueList;
+/** File access functions */
 var File = (function () {
     function File() {
-        this.folder = fileSystemModule.knownFolders.documents();
-        // public deleteFile(party: string) {
-        // 	var file = fileSystemModule.knownFolders.documents().getFile(party);
-        // 	file.
-        // }
+        this.documentFolder = fileSystemModule.knownFolders.documents();
+        this.tempFolder = fileSystemModule.knownFolders.temp();
+        this.downloadFolder = android.os.Environment.getExternalStoragePublicDirectory(android.os.Environment.DIRECTORY_DOWNLOADS).getAbsolutePath();
     }
     /** load json from a file */
     File.prototype.exists = function (filename) {
         var me = this;
-        return me.folder.contains(filename);
+        return me.documentFolder.contains(filename);
+    };
+    /** save json to a file */
+    File.prototype.saveFile = function (filename, data) {
+        var me = this;
+        return new Promise(function (resolve, reject) {
+            var file = me.documentFolder.getFile(filename);
+            file.writeSync(data, function (err) {
+                reject(err);
+                return;
+            });
+            resolve();
+        });
     };
     /** load json from a file */
     File.prototype.loadJSONFile = function (filename) {
         var me = this;
         return new Promise(function (resolve, reject) {
-            var file = me.folder.getFile(filename);
+            var file = me.documentFolder.getFile(filename);
             file.readText().then(function (content) {
                 var returnValue = null;
                 if (content != "")
@@ -474,7 +500,7 @@ var File = (function () {
     File.prototype.saveJSONFile = function (filename, data) {
         var me = this;
         return new Promise(function (resolve, reject) {
-            var file = me.folder.getFile(filename);
+            var file = me.documentFolder.getFile(filename);
             file.writeText(JSON.stringify(data)).then(function (content) {
                 resolve(content);
             })["catch"](function (err) {
@@ -484,19 +510,111 @@ var File = (function () {
     };
     //** empty the file */
     File.prototype.clearJSONFile = function (filename, data) {
-        var file = this.folder.getFile(filename);
+        var file = this.documentFolder.getFile(filename);
         file.writeText(JSON.stringify({}));
     };
     //** create a full filename including the folder for the current app */
-    File.prototype.getFullFilename = function (party) {
+    File.prototype.getFullFilename = function (filename) {
         var me = this;
-        return fileSystemModule.path.join(me.folder.path, party);
+        return fileSystemModule.path.join(me.documentFolder.path, filename);
+    };
+    //** create a full filename including the temp folder for the current app */
+    File.prototype.getFullTempFilename = function (filename) {
+        var me = this;
+        return fileSystemModule.path.join(me.tempFolder.path, filename);
+    };
+    // public deleteFile(party: string) {
+    // 	var file = fileSystemModule.knownFolders.documents().getFile(party);
+    // 	file.
+    // }
+    File.prototype.downloadUrl = function (url, filePath) {
+        var me = this;
+        return new Promise(function (resolve, reject) {
+            http.getFile(url, filePath).then(function (r) {
+                var data = r.readSync();
+                exports.call.openFile(filePath);
+            }).then(function () {
+                resolve();
+            })["catch"](function (e) {
+                var err = new Error("Error downloading '" + filePath + "'. " + e.message);
+                console.log(err.message);
+                alert(err.message);
+                reject(err);
+            });
+        });
     };
     return File;
 }());
+exports.File = File;
+/** call thirdparty apps */
+var Call = (function () {
+    function Call() {
+    }
+    /** compose an email */
+    Call.prototype.composeEmail = function (message) {
+        var me = this;
+        var subject = (message.subject || "Support");
+        if (!message.body) {
+            message.body = (message.salutation || (message.dear ? "Dear " + message.dear : null) || "Dear Madam/Sir");
+            if (message.regards)
+                message.body += "<BR><BR><BR>Regards<BR>" + message.regards;
+        }
+        email.available().then(function (avail) {
+            if (avail) {
+                return email.compose({
+                    to: [message.to],
+                    subject: subject,
+                    body: message.body,
+                    appPickerTitle: 'Compose with..' // for Android, default: 'Open with..'
+                });
+            }
+            else {
+                throw new Error("Email not available");
+            }
+        }).then(function () {
+            console.log("Email composer closed");
+        })["catch"](function (err) {
+            alert(err.message);
+        });
+        ;
+    };
+    /** make a phone call */
+    Call.prototype.phoneDial = function (PhoneNo) {
+        var me = this;
+        phone.dial(PhoneNo, true);
+    };
+    Call.prototype.openFile = function (filePath) {
+        var me = this;
+        var filename = filePath.toLowerCase();
+        try {
+            if (android) {
+                if (filename.substr(0, 7) != "file://" || filename.substr(0, 10) != "content://")
+                    filename = "file://" + filename;
+                if (android.os.Build.VERSION.SDK_INT > android.os.Build.VERSION_CODES.M)
+                    filename = filename.replace("file://", "content://");
+                var uri = android.net.Uri.parse(filename.trim());
+                var type = "application/" + ((exports.str.inList(filename.slice(-4), ['.pdf', '.doc', '.xml'])) ? filename.slice(-3) : "*");
+                //Create intent
+                var intent = new android.content.Intent(android.content.Intent.ACTION_VIEW);
+                intent.setDataAndType(uri, type);
+                intent.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK);
+                application.android.currentContext.startActivity(intent);
+            }
+            else {
+                utils_1.ios.openFile(filename);
+            }
+        }
+        catch (e) {
+            alert('Cannot open file ' + filename + '. ' + e.message);
+        }
+    };
+    return Call;
+}());
+exports.Call = Call;
 exports.tagging = new Tagging();
 exports.str = new Str();
 exports.sql = new Sql();
 exports.dt = new Dt();
 exports.viewExt = new ViewExt();
 exports.file = new File();
+exports.call = new Call();

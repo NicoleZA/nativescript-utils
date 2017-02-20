@@ -1,14 +1,24 @@
 export var sf = require('sf');
-//export var moment = require("moment");
-import { ObservableArray } from "data/observable-array";
-import { isAndroid } from "platform";
+
 import * as moment from "moment";
-import view = require("ui/core/view");
+import * as view from "ui/core/view";
 import * as observableModule from "data/observable";
 import * as fileSystemModule from "file-system";
+import * as phone from "nativescript-phone";
+import * as email from "nativescript-email";
+import * as http from "http";
+
+import { ObservableArray } from "data/observable-array";
+import { isAndroid } from "platform";
+import { ios } from "utils/utils"
+
+import * as application from "application";
+declare var android: any;
+declare var java: any;
+
 
 /** Tagging Functions */
-class Tagging {
+export class Tagging {
 
 	/** default tag icon */
 	public tagIcon = String.fromCharCode(0xf046);
@@ -117,7 +127,7 @@ class Tagging {
 }
 
 /** Sql Functions */
-class Sql {
+export class Sql {
 	//other
 	/** return a sql snipped to fetch a clarion date from the database as a standard date*/
 	public date(field) {
@@ -126,7 +136,7 @@ class Sql {
 }
 
 /** String Functions */
-class Str {
+export class Str {
 
 	/** return a URI encoded string */
 	public fixedEncodeURIComponent(url: string): string {
@@ -156,6 +166,12 @@ class Str {
 
 		});
 		return new ObservableArray(filteredData);
+	}
+
+	/** return true if te string is in the array */
+	public inList(value: string, listArray: string[]): boolean {
+		if (listArray.indexOf(value) >= 0) return true;
+		return false;
 	}
 
 	/** return true if a string contains any item in the substring array) */
@@ -239,7 +255,7 @@ class Str {
 }
 
 /** Date Functions */
-class Dt {
+export class Dt {
 
 	public moment(date?: Date): moment.Moment {
 		if (!date) {
@@ -258,13 +274,13 @@ class Dt {
 	/** start of year */
 	public dateYearStart(date?: Date, addYears?: number): Date {
 		if (!date) date = new Date();
-		return moment(date).startOf('year').add(addYears || 0,"years").toDate();
+		return moment(date).startOf('year').add(addYears || 0, "years").toDate();
 	}
 
 	/** end of year */
 	public dateYearEnd(date?: Date, addYears?: number): Date {
 		if (!date) date = new Date();
-		return moment(date).endOf('year').add(addYears || 0,"years").toDate();
+		return moment(date).endOf('year').add(addYears || 0, "years").toDate();
 	}
 
 	//Months ------------------------------------------------------------------------------
@@ -276,13 +292,13 @@ class Dt {
 	/** start of month */
 	public dateMonthStart(date?: Date, addMonths?: number): Date {
 		if (!date) date = new Date();
-		return moment(date).startOf('month').add(addMonths || 0,'months').toDate();
+		return moment(date).startOf('month').add(addMonths || 0, 'months').toDate();
 	}
 
 	/** end of month */
 	public dateMonthEnd(date?: Date, addMonths?: number): Date {
 		if (!date) date = new Date();
-		return moment(date).endOf('month').add(addMonths || 0,'months').toDate();
+		return moment(date).endOf('month').add(addMonths || 0, 'months').toDate();
 	}
 
 	//Days --------------------------------------------------------------------------------
@@ -296,12 +312,12 @@ class Dt {
 	/** start of week */
 	public dateWeekStart(date?: Date, addWeeks?: number): Date {
 		if (!date) date = new Date();
-		return  moment(date).startOf('isoWeek').add(addWeeks || 0,'weeks').toDate();
+		return moment(date).startOf('isoWeek').add(addWeeks || 0, 'weeks').toDate();
 	}
 	/** end of week */
 	public dateWeekEnd(date?: Date, addWeeks?: number): Date {
 		if (!date) date = new Date();
-		return moment(date).endOf('isoWeek').add(addWeeks || 0,'weeks').toDate();
+		return moment(date).endOf('isoWeek').add(addWeeks || 0, 'weeks').toDate();
 	}
 
 
@@ -350,7 +366,7 @@ class Dt {
 	}
 }
 
-class ViewExt {
+export class ViewExt {
 
 	/** remove the focus from a view object */
 	public clearAndDismiss(view: view.View) {
@@ -377,8 +393,8 @@ class ViewExt {
 }
 
 export interface IValueItem {
-	ValueMember: any
-	DisplayMember: string
+	ValueMember: any;
+	DisplayMember: string;
 }
 
 /** a value list array */
@@ -451,21 +467,40 @@ export class ValueList {
 	}
 }
 
-class File {
+/** File access functions */
+export class File {
 
-	public folder = fileSystemModule.knownFolders.documents();
+	public documentFolder = fileSystemModule.knownFolders.documents();
+
+	public tempFolder = fileSystemModule.knownFolders.temp();
+
+	public downloadFolder = android.os.Environment.getExternalStoragePublicDirectory(android.os.Environment.DIRECTORY_DOWNLOADS).getAbsolutePath();
+
 
 	/** load json from a file */
 	public exists(filename: string) {
 		var me = this;
-		return me.folder.contains(filename);
+		return me.documentFolder.contains(filename);
+	}
+
+	/** save json to a file */
+	public saveFile(filename: string, data) {
+		var me = this;
+		return new Promise(function (resolve, reject) {
+			var file = me.documentFolder.getFile(filename);
+			file.writeSync(data, function (err) {
+				reject(err);
+				return;
+			});
+			resolve();
+		});
 	}
 
 	/** load json from a file */
 	public loadJSONFile(filename: string) {
 		var me = this;
 		return new Promise(function (resolve, reject) {
-			var file = me.folder.getFile(filename);
+			var file = me.documentFolder.getFile(filename);
 			file.readText().then(function (content) {
 				var returnValue = null;
 				if (content != "") returnValue = JSON.parse(content);
@@ -480,7 +515,7 @@ class File {
 	public saveJSONFile(filename: string, data) {
 		var me = this;
 		return new Promise(function (resolve, reject) {
-			var file = me.folder.getFile(filename);
+			var file = me.documentFolder.getFile(filename);
 			file.writeText(JSON.stringify(data)).then(function (content) {
 				resolve(content);
 			}).catch(function (err) {
@@ -491,22 +526,119 @@ class File {
 
 	//** empty the file */
 	public clearJSONFile(filename: string, data) {
-		var file = this.folder.getFile(filename);
+		var file = this.documentFolder.getFile(filename);
 		file.writeText(JSON.stringify({}));
 	}
 
 	//** create a full filename including the folder for the current app */
-	public getFullFilename(party: string) {
+	public getFullFilename(filename: string) {
 		var me = this;
-		return fileSystemModule.path.join(me.folder.path, party);
+		return fileSystemModule.path.join(me.documentFolder.path, filename);
+	}
+	//** create a full filename including the temp folder for the current app */
+	public getFullTempFilename(filename: string) {
+		var me = this;
+		return fileSystemModule.path.join(me.tempFolder.path, filename);
 	}
 	// public deleteFile(party: string) {
 	// 	var file = fileSystemModule.knownFolders.documents().getFile(party);
 	// 	file.
 	// }
 
+
+    public downloadUrl(url,filePath) {
+        var me = this;
+        return new Promise(function (resolve, reject) {
+
+            http.getFile(url, filePath).then(function (r) {
+                var data = r.readSync();
+                call.openFile(filePath);
+            }).then(function () {
+                resolve();
+            }).catch(function (e) {
+                var err = new Error("Error downloading '" + filePath + "'. " + e.message);
+                console.log(err.message);
+                alert(err.message);
+                reject(err);
+            });
+        });
+    }
+
+
 }
 
+
+export interface IcomposeEmail {
+	to: string;
+	subject?: string;
+	body?: string;
+	salutation?: string;
+	dear?: string;
+	regards?: string;
+}
+
+/** call thirdparty apps */
+export class Call {
+
+	/** compose an email */
+	public composeEmail(message: IcomposeEmail) {
+		var me = this;
+		var subject = (message.subject || "Support");
+		if (!message.body) {
+			message.body = (message.salutation || (message.dear ? "Dear " + message.dear : null) || "Dear Madam/Sir");
+			if (message.regards) message.body += "<BR><BR><BR>Regards<BR>" + message.regards;
+		}
+
+		email.available().then(function (avail) {
+			if (avail) {
+				return email.compose({
+					to: [message.to],
+					subject: subject,
+					body: message.body,
+					appPickerTitle: 'Compose with..' // for Android, default: 'Open with..'
+				})
+			} else {
+				throw new Error("Email not available");
+			}
+		}).then(function () {
+			console.log("Email composer closed");
+		}).catch(function (err) {
+			alert(err.message);
+		});;
+	}
+
+	/** make a phone call */
+	public phoneDial(PhoneNo: string) {
+		var me = this;
+		phone.dial(PhoneNo, true);
+	}
+
+	public openFile(filePath: string) {
+		var me = this;
+		var filename = filePath.toLowerCase();
+		try {
+			if (android) {
+				if (filename.substr(0, 7) != "file://" || filename.substr(0, 10) != "content://") filename = "file://" + filename;
+				if (android.os.Build.VERSION.SDK_INT > android.os.Build.VERSION_CODES.M) filename = filename.replace("file://", "content://");
+
+				var uri = android.net.Uri.parse(filename.trim());
+                var type = "application/" + ((exports.str.inList(filename.slice(-4), ['.pdf', '.doc', '.xml'])) ? filename.slice(-3) : "*");
+
+				//Create intent
+				var intent = new android.content.Intent(android.content.Intent.ACTION_VIEW);
+				intent.setDataAndType(uri, type);
+				intent.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK);
+				application.android.currentContext.startActivity(intent);
+			}
+			else {
+				ios.openFile(filename);
+			}
+		} catch (e) {
+			alert('Cannot open file ' + filename + '. ' + e.message);
+		}
+	}
+
+}
 
 export var tagging = new Tagging();
 export var str = new Str();
@@ -514,3 +646,4 @@ export var sql = new Sql();
 export var dt = new Dt();
 export var viewExt = new ViewExt();
 export var file = new File();
+export var call = new Call();
