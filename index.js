@@ -1,15 +1,72 @@
 "use strict";
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
 exports.sf = require('sf');
+var application = require("application");
 var moment = require("moment");
 var observableModule = require("data/observable");
 var fileSystemModule = require("file-system");
 var phone = require("nativescript-phone");
 var email = require("nativescript-email");
 var http = require("http");
+var autocompleteModule = require("nativescript-telerik-ui-pro/autocomplete");
 var observable_array_1 = require("data/observable-array");
 var platform_1 = require("platform");
 var utils_1 = require("utils/utils");
-var application = require("application");
+//Miscellanious Functions
+var Utils = (function () {
+    function Utils() {
+    }
+    //Create a new instance of an object from an existing one
+    Utils.prototype.createInstanceFromJson = function (objType, json) {
+        var me = this;
+        var newObj = new objType();
+        var relationships = objType["relationships"] || {};
+        for (var prop in json) {
+            if (json.hasOwnProperty(prop)) {
+                if (newObj[prop] == null) {
+                    if (relationships[prop] == null) {
+                        newObj[prop] = json[prop];
+                    }
+                    else {
+                        newObj[prop] = me.createInstanceFromJson(relationships[prop], json[prop]);
+                    }
+                }
+                else {
+                    console.warn("Property " + prop + " not set because it already existed on the object.");
+                }
+            }
+        }
+        return newObj;
+    };
+    //adds missing functions to object
+    Utils.prototype.initObject = function (objType, json) {
+        var me = this;
+        var newObj = new objType();
+        var relationships = objType["relationships"] || {};
+        for (var prop in newObj) {
+            if (newObj.hasOwnProperty(prop)) {
+                console.warn("Add " + prop + ".");
+                if (json[prop] == null) {
+                    if (relationships[prop] == null) {
+                        json[prop] = newObj[prop];
+                    }
+                    else {
+                        json[prop] = me.createInstanceFromJson(relationships[prop], newObj[prop]);
+                    }
+                }
+                else {
+                    console.warn("Property " + prop + " not set because it already existed on the object.");
+                }
+            }
+        }
+    };
+    return Utils;
+}());
+exports.Utils = Utils;
 /** Tagging Functions */
 var Tagging = (function () {
     function Tagging() {
@@ -364,6 +421,7 @@ var Dt = (function () {
     return Dt;
 }());
 exports.Dt = Dt;
+/** Extra functions used with views */
 var ViewExt = (function () {
     function ViewExt() {
     }
@@ -611,6 +669,83 @@ var Call = (function () {
     return Call;
 }());
 exports.Call = Call;
+/** Extending Nativescript Autocomplete */
+var TokenItem = (function (_super) {
+    __extends(TokenItem, _super);
+    function TokenItem(text, value, image) {
+        var _this = _super.call(this, text, image || null) || this;
+        _this.value = value;
+        return _this;
+    }
+    return TokenItem;
+}(autocompleteModule.TokenModel));
+exports.TokenItem = TokenItem;
+;
+/** Extending Nativescript Autocomplete */
+var AutoCompleteTextView = (function (_super) {
+    __extends(AutoCompleteTextView, _super);
+    function AutoCompleteTextView(json) {
+        return _super.call(this, json) || this;
+    }
+    Object.defineProperty(AutoCompleteTextView.prototype, "selectedItem", {
+        /** Get the currently select Token Item  */
+        get: function () {
+            var me = this;
+            return me.filteredItems[0];
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(AutoCompleteTextView.prototype, "value", {
+        // /** Set the currently select Token Item  */
+        // public set selectedItem(token: TokenItem) {
+        // 	var me = this;
+        // 	if (me.filteredItems) me.filteredItems[0] = token;
+        // 	me.text = token.text;
+        // }
+        /** Get the value from the currently select Token Item  */
+        get: function () {
+            var me = this;
+            return me.selectedItem.value || 0;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(AutoCompleteTextView.prototype, "text", {
+        /** Get the text display  */
+        get: function () {
+            var me = this;
+            if (application.android) {
+                var rad = me.android; // com.telerik.widget.autocomplete.RadAutoCompleteTextView
+                return rad.getTextField();
+            }
+            else if (application.ios) {
+                var rad = me.ios; // TKAutoCompleteTextView from http://docs.telerik.com/devtools/ios/api/Classes/TKAutoCompleteTextView.html
+                return rad.textField; // baseClass = UITextField; https://developer.apple.com/reference/uikit/uitextfield
+            }
+            else {
+                return "";
+            }
+        },
+        /** Set the text display  */
+        set: function (value) {
+            var me = this;
+            if (application.android) {
+                var rad = me.android; // com.telerik.widget.autocomplete.RadAutoCompleteTextView
+                rad.getTextField().setText(value);
+            }
+            else if (application.ios) {
+                var rad = me.ios; // TKAutoCompleteTextView from http://docs.telerik.com/devtools/ios/api/Classes/TKAutoCompleteTextView.html
+                rad.textField.text = value;
+            }
+        },
+        enumerable: true,
+        configurable: true
+    });
+    return AutoCompleteTextView;
+}(autocompleteModule.RadAutoCompleteTextView));
+exports.AutoCompleteTextView = AutoCompleteTextView;
+;
 exports.tagging = new Tagging();
 exports.str = new Str();
 exports.sql = new Sql();
@@ -618,3 +753,5 @@ exports.dt = new Dt();
 exports.viewExt = new ViewExt();
 exports.file = new File();
 exports.call = new Call();
+exports.utils = new Utils();
+exports.autoCompleteTextView = new AutoCompleteTextView();

@@ -1,5 +1,6 @@
 export var sf = require('sf');
 
+import * as application from "application";
 import * as moment from "moment";
 import * as view from "ui/core/view";
 import * as observableModule from "data/observable";
@@ -7,15 +8,70 @@ import * as fileSystemModule from "file-system";
 import * as phone from "nativescript-phone";
 import * as email from "nativescript-email";
 import * as http from "http";
+import * as autocompleteModule from 'nativescript-telerik-ui-pro/autocomplete';
 
 import { ObservableArray } from "data/observable-array";
 import { isAndroid } from "platform";
 import { ios } from "utils/utils"
 
-import * as application from "application";
 declare var android: any;
 declare var java: any;
 
+
+//Miscellanious Functions
+export class Utils {
+
+	//Create a new instance of an object from an existing one
+	public createInstanceFromJson<T>(objType: { new (): T; }, json: any) {
+		var me = this;
+		const newObj = new objType();
+		const relationships = objType["relationships"] || {};
+
+		for (const prop in json) {
+			if (json.hasOwnProperty(prop)) {
+				if (newObj[prop] == null) {
+					if (relationships[prop] == null) {
+						newObj[prop] = json[prop];
+					}
+					else {
+						newObj[prop] = me.createInstanceFromJson(relationships[prop], json[prop]);
+					}
+				}
+				else {
+					console.warn(`Property ${prop} not set because it already existed on the object.`);
+				}
+			}
+		}
+
+		return newObj;
+	}
+
+	//adds missing functions to object
+	public initObject<T>(objType: { new (): T; }, json: any) {
+		var me = this;
+		const newObj = new objType();
+		const relationships = objType["relationships"] || {};
+
+		for (const prop in newObj) {
+			if (newObj.hasOwnProperty(prop)) {
+				console.warn(`Add ${prop}.`);
+				if (json[prop] == null) {
+					if (relationships[prop] == null) {
+						json[prop] = newObj[prop];
+					}
+					else {
+						json[prop] = me.createInstanceFromJson(relationships[prop], newObj[prop]);
+					}
+				}
+				else {
+					console.warn(`Property ${prop} not set because it already existed on the object.`);
+				}
+			}
+		}
+	}
+
+
+}
 
 /** Tagging Functions */
 export class Tagging {
@@ -366,6 +422,7 @@ export class Dt {
 	}
 }
 
+/** Extra functions used with views */
 export class ViewExt {
 
 	/** remove the focus from a view object */
@@ -546,23 +603,23 @@ export class File {
 	// }
 
 
-    public downloadUrl(url,filePath) {
-        var me = this;
-        return new Promise(function (resolve, reject) {
+	public downloadUrl(url, filePath) {
+		var me = this;
+		return new Promise(function (resolve, reject) {
 
-            http.getFile(url, filePath).then(function (r) {
-                var data = r.readSync();
-                call.openFile(filePath);
-            }).then(function () {
-                resolve();
-            }).catch(function (e) {
-                var err = new Error("Error downloading '" + filePath + "'. " + e.message);
-                console.log(err.message);
-                alert(err.message);
-                reject(err);
-            });
-        });
-    }
+			http.getFile(url, filePath).then(function (r) {
+				var data = r.readSync();
+				call.openFile(filePath);
+			}).then(function () {
+				resolve();
+			}).catch(function (e) {
+				var err = new Error("Error downloading '" + filePath + "'. " + e.message);
+				console.log(err.message);
+				alert(err.message);
+				reject(err);
+			});
+		});
+	}
 
 
 }
@@ -622,7 +679,7 @@ export class Call {
 				if (android.os.Build.VERSION.SDK_INT > android.os.Build.VERSION_CODES.M) filename = filename.replace("file://", "content://");
 
 				var uri = android.net.Uri.parse(filename.trim());
-                var type = "application/" + ((exports.str.inList(filename.slice(-4), ['.pdf', '.doc', '.xml'])) ? filename.slice(-3) : "*");
+				var type = "application/" + ((exports.str.inList(filename.slice(-4), ['.pdf', '.doc', '.xml'])) ? filename.slice(-3) : "*");
 
 				//Create intent
 				var intent = new android.content.Intent(android.content.Intent.ACTION_VIEW);
@@ -640,6 +697,74 @@ export class Call {
 
 }
 
+/** Extending Nativescript Autocomplete */
+export class TokenItem extends autocompleteModule.TokenModel {
+	value: number;
+	constructor(text: string, value: number, image?: string) {
+		super(text, image || null);
+		this.value = value;
+	}
+
+};
+
+/** Extending Nativescript Autocomplete */
+export class AutoCompleteTextView extends autocompleteModule.RadAutoCompleteTextView {
+
+	public filteredItems: Array<TokenItem>
+	public loadSuggestionsAsync: any
+
+	constructor(json?: any) {
+		super(json);
+	}
+
+	/** Get the currently select Token Item  */
+	public get selectedItem(): TokenItem {
+		var me = <any>this;
+		return me.filteredItems[0];
+	}
+
+	// /** Set the currently select Token Item  */
+	// public set selectedItem(token: TokenItem) {
+	// 	var me = this;
+	// 	if (me.filteredItems) me.filteredItems[0] = token;
+	// 	me.text = token.text;
+	// }
+
+	/** Get the value from the currently select Token Item  */
+	public get value(): number {
+		var me = this;
+		return me.selectedItem.value || 0;
+	}
+
+	/** Get the text display  */
+	public get text(): string {
+		var me = this;
+		if (application.android) {
+			var rad = me.android; // com.telerik.widget.autocomplete.RadAutoCompleteTextView
+			return rad.getTextField();
+		} else if (application.ios) {
+			var rad = me.ios; // TKAutoCompleteTextView from http://docs.telerik.com/devtools/ios/api/Classes/TKAutoCompleteTextView.html
+			return rad.textField; // baseClass = UITextField; https://developer.apple.com/reference/uikit/uitextfield
+		} else {
+			return "";
+		}
+	}
+
+	/** Set the text display  */
+	public set text(value: string) {
+		var me = this;
+		if (application.android) {
+			var rad = me.android; // com.telerik.widget.autocomplete.RadAutoCompleteTextView
+			rad.getTextField().setText(value);
+		} else if (application.ios) {
+			var rad = me.ios; // TKAutoCompleteTextView from http://docs.telerik.com/devtools/ios/api/Classes/TKAutoCompleteTextView.html
+			rad.textField.text = value;
+		}
+	}
+
+};
+
+
 export var tagging = new Tagging();
 export var str = new Str();
 export var sql = new Sql();
@@ -647,3 +772,5 @@ export var dt = new Dt();
 export var viewExt = new ViewExt();
 export var file = new File();
 export var call = new Call();
+export var utils = new Utils();
+export var autoCompleteTextView = new AutoCompleteTextView();
