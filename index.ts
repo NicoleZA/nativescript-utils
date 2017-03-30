@@ -420,6 +420,12 @@ export class Dt {
 		var diffDays = Math.round(Math.abs((date.getTime() - startDate.getTime()) / (oneDay)))
 		return diffDays
 	}
+	/** convert a date to a clarion date */
+	public clarionDateToDate(clarionDate?: number): Date {
+		if (!clarionDate) return new Date();
+		return this.dateAddDays(clarionDate, new Date("December 28, 1800"));
+	}
+
 }
 
 /** Extra functions used with views */
@@ -531,7 +537,7 @@ export class File {
 
 	public tempFolder = fileSystemModule.knownFolders.temp();
 
-	public downloadFolder = android.os.Environment.getExternalStoragePublicDirectory(android.os.Environment.DIRECTORY_DOWNLOADS).getAbsolutePath();
+	public downloadFolder = isAndroid ? android.os.Environment.getExternalStoragePublicDirectory(android.os.Environment.DIRECTORY_DOWNLOADS).getAbsolutePath() : '';
 
 
 	/** load json from a file */
@@ -707,64 +713,6 @@ export class TokenItem extends autocompleteModule.TokenModel {
 
 };
 
-/** Extending Nativescript Autocomplete */
-export class AutoCompleteTextView extends autocompleteModule.RadAutoCompleteTextView {
-
-	public filteredItems: Array<TokenItem>
-	public loadSuggestionsAsync: any
-
-	constructor(json?: any) {
-		super(json);
-	}
-
-	/** Get the currently select Token Item  */
-	public get selectedItem(): TokenItem {
-		var me = <any>this;
-		return me.filteredItems[0];
-	}
-
-	// /** Set the currently select Token Item  */
-	// public set selectedItem(token: TokenItem) {
-	// 	var me = this;
-	// 	if (me.filteredItems) me.filteredItems[0] = token;
-	// 	me.text = token.text;
-	// }
-
-	/** Get the value from the currently select Token Item  */
-	public get value(): number {
-		var me = this;
-		return me.selectedItem.value || 0;
-	}
-
-	/** Get the text display  */
-	public get text(): string {
-		var me = this;
-		if (application.android) {
-			var rad = me.android; // com.telerik.widget.autocomplete.RadAutoCompleteTextView
-			return rad.getTextField();
-		} else if (application.ios) {
-			var rad = me.ios; // TKAutoCompleteTextView from http://docs.telerik.com/devtools/ios/api/Classes/TKAutoCompleteTextView.html
-			return rad.textField; // baseClass = UITextField; https://developer.apple.com/reference/uikit/uitextfield
-		} else {
-			return "";
-		}
-	}
-
-	/** Set the text display  */
-	public set text(value: string) {
-		var me = this;
-		if (application.android) {
-			var rad = me.android; // com.telerik.widget.autocomplete.RadAutoCompleteTextView
-			rad.getTextField().setText(value);
-		} else if (application.ios) {
-			var rad = me.ios; // TKAutoCompleteTextView from http://docs.telerik.com/devtools/ios/api/Classes/TKAutoCompleteTextView.html
-			rad.textField.text = value;
-		}
-	}
-
-};
-
-
 export var tagging = new Tagging();
 export var str = new Str();
 export var sql = new Sql();
@@ -773,4 +721,3 @@ export var viewExt = new ViewExt();
 export var file = new File();
 export var call = new Call();
 export var utils = new Utils();
-export var autoCompleteTextView = new AutoCompleteTextView();

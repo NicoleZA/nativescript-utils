@@ -1,29 +1,29 @@
 {
-  "name": "nativescript-utils",
-  "version": "1.0.33",
-  "description": "Useful collection of functions",
-  "main": "index.js",
-  "author": {
-    "name": "Nicole Orpen",
-    "email": "nicole.orpen@gmail.com"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/nicoleza/nativescript-utils.git"
-  },
-  "license": "MIT",
-  "keywords": [
-    "nativescript utils"
-  ],
-  "dependencies": {
-    "moment": "^2.13.0",
-    "nativescript-email": "^1.4.0",
-    "nativescript-phone": "^1.2.4",
-    "sf": "^0.1.8"
-  },
-  "readme": "NativeScript Utils",
-  "bugs": {
-    "url": "https://github.com/nicoleza/nativescript-utils/issues"
-  },
-  "homepage": "https://github.com/nicoleza/nativescript-utils#readme"
+    "name": "nativescript-utils",
+    "version": "1.0.37",
+    "description": "Useful collection of functions",
+    "main": "index.js",
+    "author": {
+        "name": "Nicole Orpen",
+        "email": "nicole.orpen@gmail.com"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/nicoleza/nativescript-utils.git"
+    },
+    "license": "MIT",
+    "keywords": [
+        "nativescript utils"
+    ],
+    "dependencies": {
+        "moment": "^2.13.0",
+        "nativescript-email": "^1.4.0",
+        "nativescript-phone": "^1.2.4",
+        "sf": "^0.1.8"
+    },
+    "readme": "NativeScript Utils",
+    "bugs": {
+        "url": "https://github.com/nicoleza/nativescript-utils/issues"
+    },
+    "homepage": "https://github.com/nicoleza/nativescript-utils#readme"
 }

@@ -1,9 +1,15 @@
 "use strict";
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-};
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+exports.__esModule = true;
 exports.sf = require('sf');
 var application = require("application");
 var moment = require("moment");
@@ -418,6 +424,12 @@ var Dt = (function () {
         var diffDays = Math.round(Math.abs((date.getTime() - startDate.getTime()) / (oneDay)));
         return diffDays;
     };
+    /** convert a date to a clarion date */
+    Dt.prototype.clarionDateToDate = function (clarionDate) {
+        if (!clarionDate)
+            return new Date();
+        return this.dateAddDays(clarionDate, new Date("December 28, 1800"));
+    };
     return Dt;
 }());
 exports.Dt = Dt;
@@ -520,7 +532,7 @@ var File = (function () {
     function File() {
         this.documentFolder = fileSystemModule.knownFolders.documents();
         this.tempFolder = fileSystemModule.knownFolders.temp();
-        this.downloadFolder = android.os.Environment.getExternalStoragePublicDirectory(android.os.Environment.DIRECTORY_DOWNLOADS).getAbsolutePath();
+        this.downloadFolder = platform_1.isAndroid ? android.os.Environment.getExternalStoragePublicDirectory(android.os.Environment.DIRECTORY_DOWNLOADS).getAbsolutePath() : '';
     }
     /** load json from a file */
     File.prototype.exists = function (filename) {
@@ -681,71 +693,6 @@ var TokenItem = (function (_super) {
 }(autocompleteModule.TokenModel));
 exports.TokenItem = TokenItem;
 ;
-/** Extending Nativescript Autocomplete */
-var AutoCompleteTextView = (function (_super) {
-    __extends(AutoCompleteTextView, _super);
-    function AutoCompleteTextView(json) {
-        return _super.call(this, json) || this;
-    }
-    Object.defineProperty(AutoCompleteTextView.prototype, "selectedItem", {
-        /** Get the currently select Token Item  */
-        get: function () {
-            var me = this;
-            return me.filteredItems[0];
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(AutoCompleteTextView.prototype, "value", {
-        // /** Set the currently select Token Item  */
-        // public set selectedItem(token: TokenItem) {
-        // 	var me = this;
-        // 	if (me.filteredItems) me.filteredItems[0] = token;
-        // 	me.text = token.text;
-        // }
-        /** Get the value from the currently select Token Item  */
-        get: function () {
-            var me = this;
-            return me.selectedItem.value || 0;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(AutoCompleteTextView.prototype, "text", {
-        /** Get the text display  */
-        get: function () {
-            var me = this;
-            if (application.android) {
-                var rad = me.android; // com.telerik.widget.autocomplete.RadAutoCompleteTextView
-                return rad.getTextField();
-            }
-            else if (application.ios) {
-                var rad = me.ios; // TKAutoCompleteTextView from http://docs.telerik.com/devtools/ios/api/Classes/TKAutoCompleteTextView.html
-                return rad.textField; // baseClass = UITextField; https://developer.apple.com/reference/uikit/uitextfield
-            }
-            else {
-                return "";
-            }
-        },
-        /** Set the text display  */
-        set: function (value) {
-            var me = this;
-            if (application.android) {
-                var rad = me.android; // com.telerik.widget.autocomplete.RadAutoCompleteTextView
-                rad.getTextField().setText(value);
-            }
-            else if (application.ios) {
-                var rad = me.ios; // TKAutoCompleteTextView from http://docs.telerik.com/devtools/ios/api/Classes/TKAutoCompleteTextView.html
-                rad.textField.text = value;
-            }
-        },
-        enumerable: true,
-        configurable: true
-    });
-    return AutoCompleteTextView;
-}(autocompleteModule.RadAutoCompleteTextView));
-exports.AutoCompleteTextView = AutoCompleteTextView;
-;
 exports.tagging = new Tagging();
 exports.str = new Str();
 exports.sql = new Sql();
@@ -754,4 +701,3 @@ exports.viewExt = new ViewExt();
 exports.file = new File();
 exports.call = new Call();
 exports.utils = new Utils();
-exports.autoCompleteTextView = new AutoCompleteTextView();
