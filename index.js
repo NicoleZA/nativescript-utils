@@ -420,7 +420,7 @@ var Dt = (function () {
         if (!date)
             date = new Date();
         var oneDay = 24 * 60 * 60 * 1000; // hours*minutes*seconds*milliseconds
-        var startDate = new Date("December 28, 1800");
+        var startDate = new Date("December 29, 1800");
         var diffDays = Math.round(Math.abs((date.getTime() - startDate.getTime()) / (oneDay)));
         return diffDays;
     };
@@ -428,7 +428,7 @@ var Dt = (function () {
     Dt.prototype.clarionDateToDate = function (clarionDate) {
         if (!clarionDate)
             return new Date();
-        return this.dateAddDays(clarionDate, new Date("December 28, 1800"));
+        return this.dateAddDays(clarionDate, new Date("December 29, 1800"));
     };
     return Dt;
 }());
