@@ -397,12 +397,11 @@ var Dt = (function () {
     };
     /** convert a date to a string (DD/MM/YYYY) */
     Dt.prototype.dateToStr = function (date) {
-        if (!date) {
-            return moment().format('DD/MM/YYYY');
-        }
-        else {
-            return moment(date).format('DD/MM/YYYY');
-        }
+        return moment(date).format('DD/MM/YYYY');
+    };
+    /** convert a date to a string (DD/MM/YYYY) */
+    Dt.prototype.timeToStr = function (date) {
+        return moment(date).format('hh:mm A');
     };
     /** convert a string (DD/MM/YYYY) to a date */
     Dt.prototype.strToDate = function (date) {
@@ -436,6 +435,20 @@ var Dt = (function () {
         if (!clarionDate)
             return new Date();
         return this.dateAddDays(clarionDate, new Date("December 28, 1800"));
+    };
+    /** convert a date to a clarion date */
+    Dt.prototype.clarionTime = function (date) {
+        if (!date)
+            date = new Date();
+        var mmtMidnight = moment(date).startOf('day');
+        var seconds = moment(date).diff(mmtMidnight, 'seconds') * 100;
+        return seconds;
+    };
+    /** convert a date to a clarion time */
+    Dt.prototype.clarionTimeToDate = function (clarionDate) {
+        if (!clarionDate)
+            return new Date();
+        return moment(new Date("December 28, 1800")).add(clarionDate / 100, 'seconds').toDate();
     };
     return Dt;
 }());

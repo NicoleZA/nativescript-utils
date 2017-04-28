@@ -398,11 +398,12 @@ export class Dt {
 
 	/** convert a date to a string (DD/MM/YYYY) */
 	public dateToStr(date?: Date): string {
-		if (!date) {
-			return moment().format('DD/MM/YYYY');
-		} else {
-			return moment(date).format('DD/MM/YYYY');
-		}
+		return moment(date).format('DD/MM/YYYY');
+	}
+
+	/** convert a date to a string (DD/MM/YYYY) */
+	public timeToStr(date?: Date): string {
+		return moment(date).format('hh:mm A');
 	}
 
 	/** convert a string (DD/MM/YYYY) to a date */
@@ -435,6 +436,18 @@ export class Dt {
 		return this.dateAddDays(clarionDate, new Date("December 28, 1800"));
 	}
 
+	/** convert a date to a clarion date */
+	public clarionTime(date?: Date): number {
+		if (!date) date = new Date();
+		var mmtMidnight = moment(date).startOf('day');
+		var seconds = moment(date).diff(mmtMidnight, 'seconds') * 100;
+		return seconds
+	}
+	/** convert a date to a clarion time */
+	public clarionTimeToDate(clarionDate?: number): Date {
+		if (!clarionDate) return new Date();
+		return moment(new Date("December 28, 1800")).add(clarionDate / 100, 'seconds').toDate();
+	}
 }
 
 /** Extra functions used with views */
