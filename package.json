@@ -1,6 +1,6 @@
 {
     "name": "nativescript-utils",
-    "version": "1.0.38",
+    "version": "1.0.39",
     "description": "Useful collection of functions",
     "main": "index.js",
     "author": {

@@ -307,6 +307,15 @@ export class Str {
 		return returnValue;
 	}
 
+	/** Utility function to create a K:V from a list of strings */
+	public strEnum<T extends string>(o: Array<T>): {[K in T]: K} {
+		return o.reduce((res, key) => {
+			res[key] = key;
+			return res;
+		}, Object.create(null));
+	}
+
+
 
 }
 
@@ -416,14 +425,14 @@ export class Dt {
 	public clarionDate(date?: Date): number {
 		if (!date) date = new Date();
 		var oneDay = 24 * 60 * 60 * 1000; // hours*minutes*seconds*milliseconds
-		var startDate = new Date("December 29, 1800");
+		var startDate = new Date("December 28, 1800");
 		var diffDays = Math.round(Math.abs((date.getTime() - startDate.getTime()) / (oneDay)))
 		return diffDays
 	}
 	/** convert a date to a clarion date */
 	public clarionDateToDate(clarionDate?: number): Date {
 		if (!clarionDate) return new Date();
-		return this.dateAddDays(clarionDate, new Date("December 29, 1800"));
+		return this.dateAddDays(clarionDate, new Date("December 28, 1800"));
 	}
 
 }
@@ -469,8 +478,8 @@ export class ValueList {
 	/** the number of items */
 	get length(): number { return this.items.length; }
 
-	constructor(array: Array<IValueItem>) {
-		this.items = array;
+	constructor(array?: Array<IValueItem>) {
+		if (array) this.items = array;
 	}
 
 	/** add a new item to the list */
@@ -489,11 +498,8 @@ export class ValueList {
 	}
 
 	/** get an item by its index */
-	public getItem(index: number): IValueItem {
-		if (index < 0 || index >= this.items.length) {
-			return null;
-		}
-		return this.items[index];
+	public getItem(index: number) {
+		return this.getText(index);
 	}
 
 	/** get the items display value by its index */
@@ -529,6 +535,87 @@ export class ValueList {
 		return defaultIndex == null ? -1 : defaultIndex;
 	}
 }
+
+/** a value list array */
+export class Dictionary {
+
+	/** this array of value items */
+	private _items = [];
+	/** get the list of value items */
+	public get items() { return this._items }
+	/** set the list of value items */
+	public set items(array) { this._items = array }
+
+	public valueMemberName = "ValueMember";
+	public displayMemberName = "DisplayMember";
+
+	/** the number of items */
+	public get length(): number { return this.items.length; }
+
+	constructor(array?: Array<any>, valueMemberName?: string, displayMemberName?: string) {
+		this.addItems(array, valueMemberName, displayMemberName);
+	}
+
+	/** add a new item to the list */
+	public addItem(item: IValueItem) {
+		this.items.push(item);
+	}
+
+	/** add a new item to the list */
+	public addItems(array: Array<any>, valueMemberName: string, displayMemberName: string) {
+		var me = this;
+		if (array) me.items = array;
+		if (valueMemberName) this.valueMemberName = valueMemberName;
+		if (displayMemberName) this.displayMemberName = displayMemberName;
+	}
+
+	/** add a new item to the beginning of the list */
+	public addItemFront(item: IValueItem) {
+		this.items.unshift(item);
+	}
+
+
+	/** get an item by its index */
+	public getItem(index: number) {
+		return this.getText(index);
+	}
+
+	/** get the items display value by its index */
+	public getText(index: number): string {
+		var me = this;
+		if (index < 0 || index >= me.items.length) {
+			return "";
+		}
+		return me.items[index][me.displayMemberName];
+	}
+
+	/** get an array of the items display members  */
+	public getTextArray(): Array<any> {
+		var me = this;
+		return me.items.map(function (x: IValueItem) { return x[me.displayMemberName]; });
+	}
+
+	/** get the items valueMember by its index */
+	public getValue(index: number) {
+		var me = this;
+		if (index < 0 || index >= me.items.length) {
+			return null;
+		}
+		return me.items[index][me.valueMemberName];
+	}
+
+	/** get the items index by its valueMemeber, use default index if not found else return -1 */
+	public getIndex(value: any, defaultIndex?: number): number {
+		let loop: number;
+		for (loop = 0; loop < this.items.length; loop++) {
+			if (this.getValue(loop) == value) {
+				return loop;
+			}
+		}
+		return defaultIndex == null ? -1 : defaultIndex;
+	}
+}
+
 
 /** File access functions */
 export class File {

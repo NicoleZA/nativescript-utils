@@ -305,6 +305,13 @@ var Str = (function () {
         ;
         return returnValue;
     };
+    /** Utility function to create a K:V from a list of strings */
+    Str.prototype.strEnum = function (o) {
+        return o.reduce(function (res, key) {
+            res[key] = key;
+            return res;
+        }, Object.create(null));
+    };
     return Str;
 }());
 exports.Str = Str;
@@ -420,7 +427,7 @@ var Dt = (function () {
         if (!date)
             date = new Date();
         var oneDay = 24 * 60 * 60 * 1000; // hours*minutes*seconds*milliseconds
-        var startDate = new Date("December 29, 1800");
+        var startDate = new Date("December 28, 1800");
         var diffDays = Math.round(Math.abs((date.getTime() - startDate.getTime()) / (oneDay)));
         return diffDays;
     };
@@ -428,7 +435,7 @@ var Dt = (function () {
     Dt.prototype.clarionDateToDate = function (clarionDate) {
         if (!clarionDate)
             return new Date();
-        return this.dateAddDays(clarionDate, new Date("December 29, 1800"));
+        return this.dateAddDays(clarionDate, new Date("December 28, 1800"));
     };
     return Dt;
 }());
@@ -468,7 +475,8 @@ exports.ViewExt = ViewExt;
 /** a value list array */
 var ValueList = (function () {
     function ValueList(array) {
-        this.items = array;
+        if (array)
+            this.items = array;
     }
     Object.defineProperty(ValueList.prototype, "length", {
         /** the number of items */
@@ -490,10 +498,7 @@ var ValueList = (function () {
     };
     /** get an item by its index */
     ValueList.prototype.getItem = function (index) {
-        if (index < 0 || index >= this.items.length) {
-            return null;
-        }
-        return this.items[index];
+        return this.getText(index);
     };
     /** get the items display value by its index */
     ValueList.prototype.getText = function (index) {
@@ -527,6 +532,85 @@ var ValueList = (function () {
     return ValueList;
 }());
 exports.ValueList = ValueList;
+/** a value list array */
+var Dictionary = (function () {
+    function Dictionary(array, valueMemberName, displayMemberName) {
+        /** this array of value items */
+        this._items = [];
+        this.valueMemberName = "ValueMember";
+        this.displayMemberName = "DisplayMember";
+        this.addItems(array, valueMemberName, displayMemberName);
+    }
+    Object.defineProperty(Dictionary.prototype, "items", {
+        /** get the list of value items */
+        get: function () { return this._items; },
+        /** set the list of value items */
+        set: function (array) { this._items = array; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Dictionary.prototype, "length", {
+        /** the number of items */
+        get: function () { return this.items.length; },
+        enumerable: true,
+        configurable: true
+    });
+    /** add a new item to the list */
+    Dictionary.prototype.addItem = function (item) {
+        this.items.push(item);
+    };
+    /** add a new item to the list */
+    Dictionary.prototype.addItems = function (array, valueMemberName, displayMemberName) {
+        var me = this;
+        if (array)
+            me.items = array;
+        if (valueMemberName)
+            this.valueMemberName = valueMemberName;
+        if (displayMemberName)
+            this.displayMemberName = displayMemberName;
+    };
+    /** add a new item to the beginning of the list */
+    Dictionary.prototype.addItemFront = function (item) {
+        this.items.unshift(item);
+    };
+    /** get an item by its index */
+    Dictionary.prototype.getItem = function (index) {
+        return this.getText(index);
+    };
+    /** get the items display value by its index */
+    Dictionary.prototype.getText = function (index) {
+        var me = this;
+        if (index < 0 || index >= me.items.length) {
+            return "";
+        }
+        return me.items[index][me.displayMemberName];
+    };
+    /** get an array of the items display members  */
+    Dictionary.prototype.getTextArray = function () {
+        var me = this;
+        return me.items.map(function (x) { return x[me.displayMemberName]; });
+    };
+    /** get the items valueMember by its index */
+    Dictionary.prototype.getValue = function (index) {
+        var me = this;
+        if (index < 0 || index >= me.items.length) {
+            return null;
+        }
+        return me.items[index][me.valueMemberName];
+    };
+    /** get the items index by its valueMemeber, use default index if not found else return -1 */
+    Dictionary.prototype.getIndex = function (value, defaultIndex) {
+        var loop;
+        for (loop = 0; loop < this.items.length; loop++) {
+            if (this.getValue(loop) == value) {
+                return loop;
+            }
+        }
+        return defaultIndex == null ? -1 : defaultIndex;
+    };
+    return Dictionary;
+}());
+exports.Dictionary = Dictionary;
 /** File access functions */
 var File = (function () {
     function File() {
