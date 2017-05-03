@@ -539,11 +539,8 @@ export class ValueList {
 	/** get the items index by its value, use default index if not found else return -1 */
 
 	public getIndex(value: any, defaultIndex?: number): number {
-		let loop: number;
-		for (loop = 0; loop < this.items.length; loop++) {
-			if (this.getValue(loop) == value) {
-				return loop;
-			}
+		for (var i = 0; i < this.items.length; i++) {
+			if (this.getValue(i) == value) return i;
 		}
 		return defaultIndex == null ? -1 : defaultIndex;
 	}
@@ -611,19 +608,16 @@ export class Dictionary {
 	/** get the items valueMember by its index */
 	public getValue(index: number) {
 		var me = this;
-		if (index < 0 || index >= me.items.length) {
-			return null;
-		}
+		if (!me.items || me.items.length == 0) return null;
+		if (!index || index < 0 || index >= me.items.length) return null;
 		return me.items[index][me.valueMemberName];
 	}
 
 	/** get the items index by its valueMemeber, use default index if not found else return -1 */
 	public getIndex(value: any, defaultIndex?: number): number {
-		let loop: number;
-		for (loop = 0; loop < this.items.length; loop++) {
-			if (this.getValue(loop) == value) {
-				return loop;
-			}
+		var me = this;
+		for (var i = 0; i < this.items.length; i++) {
+			if (me.getValue(i) == value) return i;
 		}
 		return defaultIndex == null ? -1 : defaultIndex;
 	}

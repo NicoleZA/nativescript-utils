@@ -1,15 +1,9 @@
 "use strict";
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-exports.__esModule = true;
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
 exports.sf = require('sf');
 var application = require("application");
 var moment = require("moment");
@@ -534,11 +528,9 @@ var ValueList = (function () {
     };
     /** get the items index by its value, use default index if not found else return -1 */
     ValueList.prototype.getIndex = function (value, defaultIndex) {
-        var loop;
-        for (loop = 0; loop < this.items.length; loop++) {
-            if (this.getValue(loop) == value) {
-                return loop;
-            }
+        for (var i = 0; i < this.items.length; i++) {
+            if (this.getValue(i) == value)
+                return i;
         }
         return defaultIndex == null ? -1 : defaultIndex;
     };
@@ -606,18 +598,18 @@ var Dictionary = (function () {
     /** get the items valueMember by its index */
     Dictionary.prototype.getValue = function (index) {
         var me = this;
-        if (index < 0 || index >= me.items.length) {
+        if (!me.items || me.items.length == 0)
             return null;
-        }
+        if (!index || index < 0 || index >= me.items.length)
+            return null;
         return me.items[index][me.valueMemberName];
     };
     /** get the items index by its valueMemeber, use default index if not found else return -1 */
     Dictionary.prototype.getIndex = function (value, defaultIndex) {
-        var loop;
-        for (loop = 0; loop < this.items.length; loop++) {
-            if (this.getValue(loop) == value) {
-                return loop;
-            }
+        var me = this;
+        for (var i = 0; i < this.items.length; i++) {
+            if (me.getValue(i) == value)
+                return i;
         }
         return defaultIndex == null ? -1 : defaultIndex;
     };
