@@ -271,6 +271,11 @@ export class Str {
 		return new ObservableArray(array);
 	}
 
+	/** convert an array to and observable array */
+	public observable(obj) {
+		return observableModule.fromObject(obj);
+	}
+
 	/** Extract objects from array  */
 	public getArrayObjects(array: Array<any>, objectName: string): Array<any> {
 		return array.map(function (x) { return x[objectName]; });
@@ -454,20 +459,20 @@ export class Dt {
 export class ViewExt {
 
 	/** remove the focus from a view object */
-	public clearAndDismiss(view: view.View) {
+	public clearAndDismiss(view: view.ViewBase) {
 		if (!view) return;
 		this.dismissSoftInput(view);
 		this.clearFocus(view);
 	}
 
 	/** remove the focus from a view object */
-	public clearFocus(view: view.View) {
+	public clearFocus(view: view.ViewBase) {
 		if (!view) return;
 		if (isAndroid) if (view.android) view.android.clearFocus();
 	}
 
 	/** hide the soft keyboard from a view object */
-	public dismissSoftInput(view: view.View) {
+	public dismissSoftInput(view: view.ViewBase) {
 		if (!view) return;
 		try {
 			(<any>view).dismissSoftInput();
