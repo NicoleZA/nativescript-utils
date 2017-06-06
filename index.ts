@@ -267,7 +267,7 @@ export class Str {
 	}
 
 	/** convert an array to and observable array */
-	public observableArray(array?: Array<any>) {
+	public observableArray<T>(array?: Array<any>) : ObservableArray<T> {
 		return new ObservableArray(array);
 	}
 
@@ -442,6 +442,28 @@ export class Dt {
 	}
 
 	/** convert a date to a clarion date */
+	public shortMonth(clarionDate?: number): string {
+		var me = this;
+		var date = me.clarionDateToDate(clarionDate);
+		return me.monthShortName(date.getMonth());
+	}
+
+	/** convert a date to a clarion date */
+	public monthYear(clarionDate?: number): string {
+		var me = this;
+		var date = me.clarionDateToDate(clarionDate);
+		return me.monthShortName(date.getMonth()) + '`' + date.getFullYear().toString().substr(2, 2);
+	}
+
+	/** get short description for month */
+	public monthShortName(month: number): string {
+		if(!month) return '';
+		var month_names_short = ['','Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+		var monthName = month_names_short[month];
+		return monthName;
+	}
+
+	/** convert a date to a clarion date */
 	public clarionTime(date?: Date): number {
 		if (!date) date = new Date();
 		var mmtMidnight = moment(date).startOf('day');
@@ -586,7 +608,11 @@ export class Dictionary {
 
 	/** add a new item to the beginning of the list */
 	public addItemFront(item: IValueItem) {
-		this.items.unshift(item);
+		var me = this;
+		var addItem = {};
+		addItem[me.valueMemberName] = item.ValueMember;
+		addItem[me.displayMemberName] = item.DisplayMember;
+		this.items.unshift(addItem);
 	}
 
 
@@ -614,7 +640,7 @@ export class Dictionary {
 	public getValue(index: number) {
 		var me = this;
 		if (!me.items || me.items.length == 0) return null;
-		if (!index || index < 0 || index >= me.items.length) return null;
+		if (index == undefined || index < 0 || index >= me.items.length) return null;
 		return me.items[index][me.valueMemberName];
 	}
 
