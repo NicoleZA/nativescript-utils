@@ -194,6 +194,12 @@ export class Sql {
 /** String Functions */
 export class Str {
 
+	public capitalise(value: string): string {
+		var returnValue = value.replace(/\w\S*/g, function (txt) { return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase(); });
+		return returnValue;
+
+	}
+
 	/** return a URI encoded string */
 	public fixedEncodeURIComponent(url: string): string {
 		return encodeURIComponent(url).replace(/[!'()*]/g, function (c) {
@@ -267,7 +273,7 @@ export class Str {
 	}
 
 	/** convert an array to and observable array */
-	public observableArray<T>(array?: Array<any>) : ObservableArray<T> {
+	public observableArray<T>(array?: Array<any>): ObservableArray<T> {
 		return new ObservableArray(array);
 	}
 
@@ -275,6 +281,15 @@ export class Str {
 	public observable(obj) {
 		return observableModule.fromObject(obj);
 	}
+
+	/** Create observableed row fields as Observables objects to parent as tablename_fieldname  */
+	public objToObservable(me: observableModule.Observable, obj: object, prefix?: string) {
+		if (!me) return;
+		Object.keys(obj).forEach(function (key) {
+			me.set((prefix || '') + "_" + key, obj[key]);
+		});
+	}
+
 
 	/** Extract objects from array  */
 	public getArrayObjects(array: Array<any>, objectName: string): Array<any> {
@@ -313,7 +328,7 @@ export class Str {
 	}
 
 	/** Utility function to create a K:V from a list of strings */
-	public strEnum<T extends string>(o: Array<T>): {[K in T]: K} {
+	public strEnum<T extends string>(o: Array<T>): {[K in T]: K } {
 		return o.reduce((res, key) => {
 			res[key] = key;
 			return res;
@@ -390,6 +405,19 @@ export class Dt {
 		return moment(date).endOf('isoWeek').add(addWeeks || 0, 'weeks').toDate();
 	}
 
+	//Hours --------------------------------------------------------------------------------
+	/** add a hour to a date */
+	public dateAddHours(hour: number, date?: Date): Date {
+		if (!date) date = new Date();
+		return moment(date).add(hour, 'hours').toDate();
+	}
+
+	//Minutes --------------------------------------------------------------------------------
+	/** add a minutes to a date */
+	public dateAddMinutes(minutes: number, date?: Date): Date {
+		if (!date) date = new Date();
+		return moment(date).add(minutes, 'minutes').toDate();
+	}
 
 	//convert to string -------------------------------------------------------------------------------
 	/** convert a date to a string (YYYY-MM-DD) */
@@ -402,8 +430,20 @@ export class Dt {
 	}
 
 	/** convert a date to a string (DD/MM/YYYY) */
-	public dateToStr(date?: Date): string {
-		return moment(date).format('DD/MM/YYYY');
+	public dateToStr(date?: Date, format?: 'DD/MM/YYY' | 'YYYY-MM-DD' | 'D MMM YYYY' | 'D MMMM YYYY'): string {
+		var me = this;
+		switch (format) {
+			case "D MMMM YYYY":
+				var d = date || new Date();
+				return d.getDate() + ' ' + me.monthName(d.getMonth() + 1) + ' ' + d.getFullYear();
+			case "D MMM YYYY":
+				var d = date || new Date();
+				return d.getDate() + ' ' + me.monthShortName(d.getMonth() + 1) + ' ' + d.getFullYear();
+			case "YYYY-MM-DD":
+				return moment(date).format(format);
+			default:
+				return moment(date).format('DD/MM/YYYY');
+		}
 	}
 
 	/** convert a date to a string (DD/MM/YYYY) */
@@ -411,12 +451,15 @@ export class Dt {
 		return moment(date).format('hh:mm A');
 	}
 
-	/** convert a string (DD/MM/YYYY) to a date */
-	public strToDate(date: string): Date {
+	/** convert a string to a date 
+	 ** Default format:  (DD/MM/YYYY)  
+	*/
+	public strToDate(date: string, format?: string): Date {
 		if (!date) {
 			moment().toDate();
 		} else {
-			return moment(date, 'DD/MM/YYYY').toDate();
+			if (format) date = date.substr(0, format.length);
+			return moment(date, format || 'DD/MM/YYYY').toDate();
 		}
 	}
 	/** convert a date to a moment object */
@@ -445,22 +488,42 @@ export class Dt {
 	public shortMonth(clarionDate?: number): string {
 		var me = this;
 		var date = me.clarionDateToDate(clarionDate);
-		return me.monthShortName(date.getMonth());
+		return me.monthShortName(date.getMonth() + 1);
 	}
 
 	/** convert a date to a clarion date */
 	public monthYear(clarionDate?: number): string {
 		var me = this;
 		var date = me.clarionDateToDate(clarionDate);
-		return me.monthShortName(date.getMonth()) + '`' + date.getFullYear().toString().substr(2, 2);
+		return me.monthShortName(date.getMonth() + 1) + '`' + date.getFullYear().toString().substr(2, 2);
 	}
 
 	/** get short description for month */
 	public monthShortName(month: number): string {
-		if(!month) return '';
-		var month_names_short = ['','Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+		if (!month) return '';
+		var month_names_short = ['', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 		var monthName = month_names_short[month];
 		return monthName;
+	}
+
+	/** get short description for month */
+	public monthName(month: number): string {
+		if (!month) return '';
+		var month_names_short = ['', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'Octover', 'November', 'December'];
+		var monthName = month_names_short[month];
+		return monthName;
+	}
+
+	/** get short description for month */
+	public dayOfWeek(date: Date, option?: "Short" | "Long"): string {
+		if (!date) return '';
+		var day_names_short = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Fridate', 'Saturday'];
+		var day_names_long = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+		if (option == "Short") {
+			return day_names_short[date.getDay()]
+		} else {
+			return day_names_long[date.getDay()]
+		}
 	}
 
 	/** convert a date to a clarion date */
@@ -475,6 +538,45 @@ export class Dt {
 		if (!clarionDate) return new Date();
 		return moment(new Date("December 28, 1800")).add(clarionDate / 100, 'seconds').toDate();
 	}
+
+
+
+	/** convert a date to a string (DD/MM/YYYY) */
+	public diffDays(fromDate: Date, toDate?: Date): number {
+		var me = this;
+		var date = moment(toDate);
+		var returnValue = date.diff(fromDate, "days");
+		return isNaN(returnValue) ? null : returnValue;
+	}
+
+
+	/** get the days different in words */
+	public diffDaysWords(date: Date): string {
+		var me = this;
+		if (!date) return '';
+		var days = me.diffDays(date);
+		switch (days) {
+			case null:
+				return '';
+			case -1:
+				return 'tomorrow';
+			case 0:
+				return dt.timeToStr(date);
+			case 1:
+				return 'yesterday';
+			case 2:
+			case 3:
+			case 4:
+			case 5:
+			case 6:
+				return dt.dayOfWeek(date);
+			default:
+				return dt.dateToStr(date, "D MMMM YYYY")
+		}
+
+	}
+
+
 }
 
 /** Extra functions used with views */
