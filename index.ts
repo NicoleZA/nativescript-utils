@@ -244,6 +244,15 @@ export class Str {
 		return false;
 	}
 
+	/** find index in array of objects */
+	public arrayIndexOf(array: any[], searchField: string, searchValue: any): number {
+		for (var i = 0; i != array.length; i++) {
+			var field = array[i][searchField];
+			if (field = searchValue) return i;
+		}
+		return -1;
+	}
+
 	/** return a filtered array where the named field(property) contains specific text (case insensitive) */
 	public getArrayItems(array: any[], searchField: string, searchValue: any) {
 		return array.filter(function (obj) {
@@ -274,7 +283,9 @@ export class Str {
 
 	/** convert an array to and observable array */
 	public observableArray<T>(array?: Array<any>): ObservableArray<T> {
-		return new ObservableArray(array);
+		var returnValue = new ObservableArray(array);
+		returnValue.splice(0);
+		return returnValue;
 	}
 
 	/** convert an array to and observable array */
@@ -290,6 +301,10 @@ export class Str {
 		});
 	}
 
+	/** check if object is empty  */
+	public isEmptyObject(obj) {
+		return Object.getOwnPropertyNames(obj).length === 0;
+	}
 
 	/** Extract objects from array  */
 	public getArrayObjects(array: Array<any>, objectName: string): Array<any> {
