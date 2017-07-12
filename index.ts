@@ -306,8 +306,8 @@ export class Str {
 		return Object.getOwnPropertyNames(obj).length === 0;
 	}
 
-	/** Extract objects from array  */
-	public getArrayObjects(array: Array<any>, objectName: string): Array<any> {
+	/** get a column array from an object  */
+	public getItemArrayFromObject(array: Array<any>, objectName: string): Array<any> {
 		return array.map(function (x) { return x[objectName]; });
 	}
 
