@@ -1,17 +1,17 @@
-export var sf = require('sf');
-
 import * as application from "application";
 import * as moment from "moment";
 import * as view from "ui/core/view";
 import * as observableModule from "data/observable";
 import * as fileSystemModule from "file-system";
+import { topmost } from 'ui/frame';
+
 import * as phone from "nativescript-phone";
 import * as email from "nativescript-email";
 import * as http from "http";
-import * as autocompleteModule from 'nativescript-telerik-ui-pro/autocomplete';
+//import * as autocompleteModule from 'nativescript-telerik-ui-pro/autocomplete';
 
 import { ObservableArray } from "data/observable-array";
-import { isAndroid } from "platform";
+import { isAndroid, isIOS } from "platform";
 import { ios } from "utils/utils"
 
 declare var android: any;
@@ -22,7 +22,7 @@ declare var java: any;
 export class Utils {
 
 	//Create a new instance of an object from an existing one
-	public createInstanceFromJson<T>(objType: { new (): T; }, json: any) {
+	public createInstanceFromJson<T>(objType: { new(): T; }, json: any) {
 		var me = this;
 		const newObj = new objType();
 		const relationships = objType["relationships"] || {};
@@ -47,7 +47,7 @@ export class Utils {
 	}
 
 	//adds missing functions to object
-	public initObject<T>(objType: { new (): T; }, json: any) {
+	public initObject<T>(objType: { new(): T; }, json: any) {
 		var me = this;
 		const newObj = new objType();
 		const relationships = objType["relationships"] || {};
@@ -187,7 +187,7 @@ export class Sql {
 	//other
 	/** return a sql snipped to fetch a clarion date from the database as a standard date*/
 	public date(field) {
-		return sf("convert(varchar,convert(datetime,{0}-36163),103)", field);
+		return `convert(varchar,convert(datetime,${field}-36163),103)`;
 	}
 }
 
@@ -771,7 +771,6 @@ export class Dictionary {
 	}
 }
 
-
 /** File access functions */
 export class File {
 
@@ -872,7 +871,6 @@ export class File {
 
 }
 
-
 export interface IcomposeEmail {
 	to: string;
 	subject?: string;
@@ -945,16 +943,50 @@ export class Call {
 
 }
 
-/** Extending Nativescript Autocomplete */
-export class TokenItem extends autocompleteModule.TokenModel {
-	value: number;
-	constructor(text: string, value: number, image?: string) {
-		super(text, image || null);
-		this.value = value;
+// /** Extending Nativescript Autocomplete */
+// export class TokenItem extends autocompleteModule.TokenModel {
+// 	value: number;
+// 	constructor(text: string, value: number, image?: string) {
+// 		super(text, image || null);
+// 		this.value = value;
+// 	}
+
+// };
+
+
+export class Form {
+
+	public showPage(me, pageName: string, context?: any) {
+
+		if (me) me.childPage = pageName;
+		var data = {
+			moduleName: pageName + '/' + pageName,
+			context: context || {},
+			animated: true,
+			transition: { name: "slide", duration: 380, curve: "easeIn" },
+			clearHistory: false,
+			backstackVisible: true
+		};
+		topmost().navigate(data);
 	}
 
-};
+	public goBack() {
+		topmost().goBack();
+	};
 
+	public showModal(path: string, params?, fullscreen?: boolean): Promise<any> {
+		var me = this;
+		return new Promise(function (resolve, reject) {
+			topmost().currentPage.showModal(path, params, function (args) {
+				resolve(args);
+			}, fullscreen)
+		});
+	}
+
+
+}
+
+export var form = new Form();
 export var tagging = new Tagging();
 export var str = new Str();
 export var sql = new Sql();

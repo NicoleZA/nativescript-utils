@@ -1,1 +1,3 @@
-tsc index.ts 
+@echo off
+cls
+tsc
