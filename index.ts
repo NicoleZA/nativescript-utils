@@ -7,7 +7,7 @@ import { topmost } from 'ui/frame';
 
 import * as phone from "nativescript-phone";
 import * as email from "nativescript-email";
-import * as http from "http";
+import * as http from "tns-core-modules/http";
 //import * as autocompleteModule from 'nativescript-telerik-ui-pro/autocomplete';
 
 import { ObservableArray } from "data/observable-array";
@@ -248,7 +248,7 @@ export class Str {
 	public arrayIndexOf(array: any[], searchField: string, searchValue: any): number {
 		for (var i = 0; i != array.length; i++) {
 			var field = array[i][searchField];
-			if (field = searchValue) return i;
+			if (field == searchValue) return i;
 		}
 		return -1;
 	}
