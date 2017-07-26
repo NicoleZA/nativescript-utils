@@ -1,6 +1,6 @@
 {
     "name": "nativescript-utils",
-    "version": "1.0.50",
+    "version": "1.0.51",
     "description": "Useful collection of functions",
     "main": "index.js",
     "author": {
@@ -28,6 +28,6 @@
     "homepage": "https://github.com/nicoleza/nativescript-utils#readme",
     "devDependencies": {
         "@types/node": "8.0.15",
-        "typescript": "2.4.2"
+        "typescript": "^2.3.4"
     }
 }
