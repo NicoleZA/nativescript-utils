@@ -1,6 +1,6 @@
 {
     "name": "nativescript-utils",
-    "version": "1.0.51",
+    "version": "1.0.58",
     "description": "Useful collection of functions",
     "main": "index.js",
     "author": {
@@ -16,10 +16,12 @@
         "nativescript utils"
     ],
     "dependencies": {
+        "base-64": "^0.1.0",
         "moment": "^2.18.1",
-        "tns-core-modules": "3.1.0",
         "nativescript-email": "^1.4.0",
-        "nativescript-phone": "^1.3.0"
+        "nativescript-phone": "^1.3.0",
+        "tns-core-modules": "3.1.1",
+        "utf8": "^2.1.2"
     },
     "readme": "NativeScript Utils",
     "bugs": {
@@ -27,7 +29,7 @@
     },
     "homepage": "https://github.com/nicoleza/nativescript-utils#readme",
     "devDependencies": {
-        "@types/node": "8.0.15",
+        "@types/node": "8.0.22",
         "typescript": "^2.3.4"
     }
 }

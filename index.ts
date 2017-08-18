@@ -1,9 +1,12 @@
 import * as application from "application";
 import * as moment from "moment";
+import * as base64 from "base-64";
+import * as utf8 from "utf8";
 import * as view from "ui/core/view";
 import * as observableModule from "data/observable";
 import * as fileSystemModule from "file-system";
 import { topmost } from 'ui/frame';
+import { Page } from 'ui/page';
 
 import * as phone from "nativescript-phone";
 import * as email from "nativescript-email";
@@ -199,6 +202,17 @@ export class Str {
 		return returnValue;
 
 	}
+
+	public StringToBase64(string: string) {
+		var bytes = utf8.encode(string);
+		return base64.encode(bytes);
+	}
+
+	public Base64ToString(string: string) {
+		var bytes = base64.decode(bytes);
+		return utf8.decode(string);
+	}
+
 
 	/** return a URI encoded string */
 	public fixedEncodeURIComponent(url: string): string {
@@ -445,19 +459,16 @@ export class Dt {
 	}
 
 	/** convert a date to a string (DD/MM/YYYY) */
-	public dateToStr(date?: Date, format?: 'DD/MM/YYY' | 'YYYY-MM-DD' | 'D MMM YYYY' | 'D MMMM YYYY'): string {
+	public dateToStr(date?: Date, format?: 'DD/MM/YYY' | 'YYYY-MM-DD' | 'D MMM YYYY' | 'D MMMM YYYY' | "YYYYMMDDHHmmss"): string {
 		var me = this;
+		var d = date || new Date();
 		switch (format) {
 			case "D MMMM YYYY":
-				var d = date || new Date();
 				return d.getDate() + ' ' + me.monthName(d.getMonth() + 1) + ' ' + d.getFullYear();
 			case "D MMM YYYY":
-				var d = date || new Date();
 				return d.getDate() + ' ' + me.monthShortName(d.getMonth() + 1) + ' ' + d.getFullYear();
-			case "YYYY-MM-DD":
-				return moment(date).format(format);
 			default:
-				return moment(date).format('DD/MM/YYYY');
+				return moment(d).format(format || 'DD/MM/YYYY');
 		}
 	}
 
@@ -776,10 +787,29 @@ export class File {
 
 	public documentFolder = fileSystemModule.knownFolders.documents();
 
+	/** get an application folder */
+	public getAppFolder(folder: string) {
+		return fileSystemModule.knownFolders.currentApp().getFolder(folder);
+	};
+
+	/** get an application folder */
+	public getAppFolderPath(folder: string) {
+		return fileSystemModule.knownFolders.currentApp().getFolder(folder).path;
+	};
+
+	/** get an application full filename */
+	public getAppFilename(filename: string, folder: string) {
+		return fileSystemModule.knownFolders.currentApp().getFolder(folder).path + '/' + filename;
+	};
+
+	/** return an application file */
+	public getAppFile(filename: string, folder: string) {
+		return fileSystemModule.knownFolders.currentApp().getFolder(folder).getFile(filename);
+	};
+
 	public tempFolder = fileSystemModule.knownFolders.temp();
 
 	public downloadFolder = isAndroid ? android.os.Environment.getExternalStoragePublicDirectory(android.os.Environment.DIRECTORY_DOWNLOADS).getAbsolutePath() : '';
-
 
 	/** load json from a file */
 	public exists(filename: string) {
@@ -956,11 +986,15 @@ export class Call {
 
 export class Form {
 
-	public showPage(me, pageName: string, context?: any) {
+	public get currentPage(): Page {
+		return topmost().currentPage;
+	};
+
+	public showPage(me, pageName: string, context?: any, folder?: string) {
 
 		if (me) me.childPage = pageName;
 		var data = {
-			moduleName: pageName + '/' + pageName,
+			moduleName: (folder || '') + pageName + '/' + pageName,
 			context: context || {},
 			animated: true,
 			transition: { name: "slide", duration: 380, curve: "easeIn" },
