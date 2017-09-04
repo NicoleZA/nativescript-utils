@@ -1004,6 +1004,12 @@ export class Form {
 		topmost().navigate(data);
 	}
 
+	public device() : "android" | "ios" | "" {
+		if(isAndroid) return "android";
+		if(isIOS) return "ios";
+		return "";
+	}
+
 	public goBack() {
 		topmost().goBack();
 	};

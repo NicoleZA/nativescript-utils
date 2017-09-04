@@ -15,7 +15,7 @@ var observable_array_1 = require("data/observable-array");
 var platform_1 = require("platform");
 var utils_1 = require("utils/utils");
 //Miscellanious Functions
-var Utils = (function () {
+var Utils = /** @class */ (function () {
     function Utils() {
     }
     //Create a new instance of an object from an existing one
@@ -66,7 +66,7 @@ var Utils = (function () {
 }());
 exports.Utils = Utils;
 /** Tagging Functions */
-var Tagging = (function () {
+var Tagging = /** @class */ (function () {
     function Tagging() {
         /** default tag icon */
         this.tagIcon = String.fromCharCode(0xf046);
@@ -179,7 +179,7 @@ var Tagging = (function () {
 }());
 exports.Tagging = Tagging;
 /** Sql Functions */
-var Sql = (function () {
+var Sql = /** @class */ (function () {
     function Sql() {
     }
     //other
@@ -191,7 +191,7 @@ var Sql = (function () {
 }());
 exports.Sql = Sql;
 /** String Functions */
-var Str = (function () {
+var Str = /** @class */ (function () {
     function Str() {
     }
     Str.prototype.capitalise = function (value) {
@@ -347,7 +347,7 @@ var Str = (function () {
 }());
 exports.Str = Str;
 /** Date Functions */
-var Dt = (function () {
+var Dt = /** @class */ (function () {
     function Dt() {
     }
     Dt.prototype.moment = function (date) {
@@ -585,7 +585,7 @@ var Dt = (function () {
 }());
 exports.Dt = Dt;
 /** Extra functions used with views */
-var ViewExt = (function () {
+var ViewExt = /** @class */ (function () {
     function ViewExt() {
     }
     /** remove the focus from a view object */
@@ -617,7 +617,7 @@ var ViewExt = (function () {
 }());
 exports.ViewExt = ViewExt;
 /** a value list array */
-var ValueList = (function () {
+var ValueList = /** @class */ (function () {
     function ValueList(array) {
         if (array)
             this.items = array;
@@ -675,7 +675,7 @@ var ValueList = (function () {
 }());
 exports.ValueList = ValueList;
 /** a value list array */
-var Dictionary = (function () {
+var Dictionary = /** @class */ (function () {
     function Dictionary(array, valueMemberName, displayMemberName) {
         /** this array of value items */
         this._items = [];
@@ -758,7 +758,7 @@ var Dictionary = (function () {
 }());
 exports.Dictionary = Dictionary;
 /** File access functions */
-var File = (function () {
+var File = /** @class */ (function () {
     function File() {
         this.documentFolder = fileSystemModule.knownFolders.documents();
         this.tempFolder = fileSystemModule.knownFolders.temp();
@@ -867,7 +867,7 @@ var File = (function () {
 }());
 exports.File = File;
 /** call thirdparty apps */
-var Call = (function () {
+var Call = /** @class */ (function () {
     function Call() {
     }
     /** compose an email */
@@ -939,7 +939,7 @@ exports.Call = Call;
 // 		this.value = value;
 // 	}
 // };
-var Form = (function () {
+var Form = /** @class */ (function () {
     function Form() {
     }
     Object.defineProperty(Form.prototype, "currentPage", {
@@ -962,6 +962,13 @@ var Form = (function () {
             backstackVisible: true
         };
         frame_1.topmost().navigate(data);
+    };
+    Form.prototype.device = function () {
+        if (platform_1.isAndroid)
+            return "android";
+        if (platform_1.isIOS)
+            return "ios";
+        return "";
     };
     Form.prototype.goBack = function () {
         frame_1.topmost().goBack();
