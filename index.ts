@@ -1019,6 +1019,25 @@ export class Call {
 		}
 	}
 
+	/** start the contacts app */
+	public showContacts() {
+		var me = this;
+		try {
+			if (android) {
+				var uri = android.provider.ContactsContract.Contacts.CONTENT_URI;
+				var type = android.provider.ContactsContract.CommonDataKinds.Phone.CONTENT_TYPE;
+				var intent = new android.content.Intent(android.content.Intent.ACTION_DEFAULT,uri);
+				application.android.currentContext.startActivity(intent);
+			}
+			else {
+				//ios.(filename);
+			}
+		} catch (err) {
+			alert(`Cannot show contacts. ${err}`);
+		}
+	}
+
+
 }
 
 // /** Extending Nativescript Autocomplete */
