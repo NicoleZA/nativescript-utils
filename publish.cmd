@@ -1,1 +1,2 @@
+call tsc
 npm publish

@@ -2,8 +2,6 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 var application = require("application");
 var moment = require("moment");
-var base64 = require("base-64");
-var utf8 = require("utf8");
 var observableModule = require("data/observable");
 var fileSystemModule = require("file-system");
 var frame_1 = require("ui/frame");
@@ -198,13 +196,22 @@ var Str = /** @class */ (function () {
         var returnValue = value.replace(/\w\S*/g, function (txt) { return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase(); });
         return returnValue;
     };
-    Str.prototype.StringToBase64 = function (string) {
-        var bytes = utf8.encode(string);
-        return base64.encode(bytes);
+    Str.prototype.base64Encode = function (bytes) {
+        if (platform_1.isAndroid) {
+            return android.util.Base64.encodeToString(bytes, android.util.Base64.NO_WRAP);
+        }
+        else if (platform_1.isIOS) {
+            return bytes.base64EncodedStringWithOptions(0);
+        }
     };
-    Str.prototype.Base64ToString = function (string) {
-        var bytes = base64.decode(bytes);
-        return utf8.decode(string);
+    Str.prototype.base64Decode = function (string) {
+        if (platform_1.isAndroid) {
+            return android.util.Base64.decode(string, android.util.Base64.DEFAULT);
+        }
+        else if (platform_1.isIOS) {
+            return NSData.alloc().initWithBase64Encoding(string);
+            ;
+        }
     };
     /** return a URI encoded string */
     Str.prototype.fixedEncodeURIComponent = function (url) {
@@ -357,6 +364,17 @@ var Dt = /** @class */ (function () {
         else {
             return moment(date);
         }
+    };
+    Dt.prototype.Duration = function (seconds) {
+        var me = this;
+        var seconds = Math.floor(seconds);
+        var hours = Math.floor(seconds / 3600);
+        var minutes = Math.floor((seconds - (hours * 3600)) / 60);
+        var seconds = seconds - (hours * 3600) - (minutes * 60);
+        var hoursStr = (hours < 10 ? '0' : '') + hours.toString();
+        var minutesStr = (minutes < 10 ? '0' : '') + minutes.toString();
+        var secondsStr = (seconds < 10 ? '0' : '') + seconds.toString();
+        return (hours ? hoursStr + ':' : '') + minutesStr + ':' + secondsStr;
     };
     //Years -------------------------------------------------------------------------------
     /** add a year to a date */
@@ -779,11 +797,43 @@ var File = /** @class */ (function () {
         return fileSystemModule.knownFolders.currentApp().getFolder(folder).path + '/' + filename;
     };
     ;
+    /** get an application full filename */
+    File.prototype.getAppFileExists = function (filename, folder) {
+        return fileSystemModule.knownFolders.currentApp().getFolder(folder).contains(filename);
+    };
+    ;
     /** return an application file */
     File.prototype.getAppFile = function (filename, folder) {
         return fileSystemModule.knownFolders.currentApp().getFolder(folder).getFile(filename);
     };
     ;
+    /** extract file from path */
+    File.prototype.getFilename = function (path) {
+        if (!path)
+            return '';
+        if (path.indexOf("/") == -1)
+            return path;
+        return path.split("/").pop();
+    };
+    ;
+    /** check if media file exists */
+    File.prototype.mediaFileExists = function (filename) {
+        var me = this;
+        filename = me.getFilename(filename);
+        return me.getAppFileExists(filename, "media");
+    };
+    /** get a media file object */
+    File.prototype.mediaGetFile = function (filename) {
+        var me = this;
+        filename = me.getFilename(filename);
+        return exports.file.getAppFolder("media").getFile(filename);
+    };
+    /** get fullname for media file */
+    File.prototype.mediaGetFullName = function (filename) {
+        var me = this;
+        filename = me.getFilename(filename);
+        return me.getAppFolderPath("media") + ("/" + filename);
+    };
     /** load json from a file */
     File.prototype.exists = function (filename) {
         var me = this;
@@ -850,8 +900,7 @@ var File = /** @class */ (function () {
     File.prototype.downloadUrl = function (url, filePath) {
         var me = this;
         return new Promise(function (resolve, reject) {
-            http.getFile(url, filePath).then(function (r) {
-                var data = r.readSync();
+            http.getFile(url, filePath).then(function () {
                 exports.call.openFile(filePath);
             }).then(function () {
                 resolve();

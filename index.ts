@@ -1,7 +1,5 @@
 import * as application from "application";
 import * as moment from "moment";
-import * as base64 from "base-64";
-import * as utf8 from "utf8";
 import * as view from "ui/core/view";
 import * as observableModule from "data/observable";
 import * as fileSystemModule from "file-system";
@@ -19,7 +17,7 @@ import { ios } from "utils/utils"
 
 declare var android: any;
 declare var java: any;
-
+declare var NSData: any;
 
 //Miscellanious Functions
 export class Utils {
@@ -203,16 +201,21 @@ export class Str {
 
 	}
 
-	public StringToBase64(string: string) {
-		var bytes = utf8.encode(string);
-		return base64.encode(bytes);
+	public base64Encode(bytes: any): string {
+		if (isAndroid) {
+			return android.util.Base64.encodeToString(bytes, android.util.Base64.NO_WRAP);
+		} else if (isIOS) {
+			return bytes.base64EncodedStringWithOptions(0);
+		}
 	}
 
-	public Base64ToString(string: string) {
-		var bytes = base64.decode(bytes);
-		return utf8.decode(string);
+	public base64Decode(string: string): any {
+		if (isAndroid) {
+			return android.util.Base64.decode(string, android.util.Base64.DEFAULT);
+		} else if (isIOS) {
+			return NSData.alloc().initWithBase64Encoding(string);;
+		}
 	}
-
 
 	/** return a URI encoded string */
 	public fixedEncodeURIComponent(url: string): string {
@@ -377,6 +380,19 @@ export class Dt {
 		} else {
 			return moment(date);
 		}
+	}
+
+	public Duration(seconds: number): string {
+		var me = this;
+		var seconds = Math.floor(seconds);
+		var hours = Math.floor(seconds / 3600);
+		var minutes = Math.floor((seconds - (hours * 3600)) / 60);
+		var seconds = seconds - (hours * 3600) - (minutes * 60);
+
+		var hoursStr = (hours < 10 ? '0' : '') + hours.toString();
+		var minutesStr = (minutes < 10 ? '0' : '') + minutes.toString();
+		var secondsStr = (seconds < 10 ? '0' : '') + seconds.toString();
+		return (hours ? hoursStr + ':' : '') + minutesStr + ':' + secondsStr;
 	}
 
 	//Years -------------------------------------------------------------------------------
@@ -802,10 +818,43 @@ export class File {
 		return fileSystemModule.knownFolders.currentApp().getFolder(folder).path + '/' + filename;
 	};
 
+	/** get an application full filename */
+	public getAppFileExists(filename: string, folder: string): boolean {
+		return fileSystemModule.knownFolders.currentApp().getFolder(folder).contains(filename);
+	};
+
 	/** return an application file */
 	public getAppFile(filename: string, folder: string) {
 		return fileSystemModule.knownFolders.currentApp().getFolder(folder).getFile(filename);
 	};
+
+	/** extract file from path */
+	public getFilename(path: string): string {
+		if (!path) return ''
+		if (path.indexOf("/") == -1) return path;
+		return path.split("/").pop();
+	};
+
+	/** check if media file exists */
+	public mediaFileExists(filename: string): boolean {
+		var me = this;
+		filename = me.getFilename(filename);
+		return me.getAppFileExists(filename, "media");
+	}
+
+	/** get a media file object */
+	public mediaGetFile(filename: string): fileSystemModule.File {
+		var me = this;
+		filename = me.getFilename(filename);
+		return file.getAppFolder("media").getFile(filename);
+	}
+
+	/** get fullname for media file */
+	public mediaGetFullName(filename: string): string {
+		var me = this;
+		filename = me.getFilename(filename);
+		return me.getAppFolderPath("media") + `/${filename}`;
+	}
 
 	public tempFolder = fileSystemModule.knownFolders.temp();
 
@@ -884,8 +933,7 @@ export class File {
 		var me = this;
 		return new Promise(function (resolve, reject) {
 
-			http.getFile(url, filePath).then(function (r) {
-				var data = r.readSync();
+			http.getFile(url, filePath).then(() => {
 				call.openFile(filePath);
 			}).then(function () {
 				resolve();
@@ -1004,9 +1052,9 @@ export class Form {
 		topmost().navigate(data);
 	}
 
-	public device() : "android" | "ios" | "" {
-		if(isAndroid) return "android";
-		if(isIOS) return "ios";
+	public device(): "android" | "ios" | "" {
+		if (isAndroid) return "android";
+		if (isIOS) return "ios";
 		return "";
 	}
 
