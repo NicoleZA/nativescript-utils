@@ -3,8 +3,11 @@ import * as moment from "moment";
 import * as view from "ui/core/view";
 import * as observableModule from "data/observable";
 import * as fileSystemModule from "file-system";
+import * as CryptoJS from "crypto-js";
+
 import { topmost } from 'ui/frame';
 import { Page } from 'ui/page';
+import { Buffer } from 'buffer';
 
 import * as phone from "nativescript-phone";
 import * as email from "nativescript-email";
@@ -198,14 +201,52 @@ export class Str {
 	public capitalise(value: string): string {
 		var returnValue = value.replace(/\w\S*/g, function (txt) { return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase(); });
 		return returnValue;
+	}
+
+	/**
+	 * HmacSHA256
+	 */
+	public HmacSHA256(message: string, secret: string): string {
+		var result = CryptoJS.HmacSHA256(message, secret).toString().toUpperCase();
+		return result;
+	}
+
+	/**
+	 * stringToByte
+	 */
+	public stringToByte(string): any[] {
+		var bytes = []; // char codes
+		var bytesv2 = []; // char codes
+
+		for (var i = 0; i < string.length; ++i) {
+			var code = string.charCodeAt(i);
+
+			bytes = bytes.concat([code]);
+
+			bytesv2 = bytesv2.concat([code & 0xff, code / 256 >>> 0]);
+		}
+		return bytes;
+	}
+
+	public base64EncodeString(string: string): string {
+		var result = new Buffer(string).toString('base64');
+		return result;
+	}
+
+	public bufferByteLength(data): number {
+		return Buffer.byteLength(data);
 
 	}
 
 	public base64Encode(bytes: any): string {
-		if (isAndroid) {
-			return android.util.Base64.encodeToString(bytes, android.util.Base64.NO_WRAP);
-		} else if (isIOS) {
-			return bytes.base64EncodedStringWithOptions(0);
+		try {
+			if (isAndroid) {
+				return android.util.Base64.encodeToString(bytes, android.util.Base64.NO_WRAP);
+			} else if (isIOS) {
+				return bytes.base64EncodedStringWithOptions(0);
+			}
+		} catch (error) {
+			throw (error);
 		}
 	}
 
@@ -306,13 +347,13 @@ export class Str {
 	}
 
 	/** convert an array to and observable array */
-	public observable(obj) {
-		return observableModule.fromObject(obj);
+	public observable<T>(obj?) {
+		return observableModule.fromObject(obj || {});
 	}
 
 	/** Create observableed row fields as Observables objects to parent as tablename_fieldname  */
 	public objToObservable(me: observableModule.Observable, obj: object, prefix?: string) {
-		if (!me) return;
+		if (!me || !obj) return;
 		Object.keys(obj).forEach(function (key) {
 			me.set((prefix || '') + "_" + key, obj[key]);
 		});
@@ -475,12 +516,14 @@ export class Dt {
 	}
 
 	/** convert a date to a string (DD/MM/YYYY) */
-	public dateToStr(date?: Date, format?: 'DD/MM/YYY' | 'YYYY-MM-DD' | 'D MMM YYYY' | 'D MMMM YYYY' | "YYYYMMDDHHmmss"): string {
+	public dateToStr(date?: Date, format?: 'DD/MM/YYY' | 'YYYY-MM-DD' | 'D MMM YYYY' | "D MMM YYYY hh:mm" | 'D MMMM YYYY' | "YYYYMMDDHHmmss"): string {
 		var me = this;
 		var d = date || new Date();
 		switch (format) {
 			case "D MMMM YYYY":
 				return d.getDate() + ' ' + me.monthName(d.getMonth() + 1) + ' ' + d.getFullYear();
+			case "D MMM YYYY hh:mm":
+				return d.getDate() + ' ' + me.monthShortName(d.getMonth() + 1) + ' ' + d.getFullYear() + ' ' + moment(d).format('hh:mm A');
 			case "D MMM YYYY":
 				return d.getDate() + ' ' + me.monthShortName(d.getMonth() + 1) + ' ' + d.getFullYear();
 			default:
@@ -1026,7 +1069,7 @@ export class Call {
 			if (android) {
 				var uri = android.provider.ContactsContract.Contacts.CONTENT_URI;
 				var type = android.provider.ContactsContract.CommonDataKinds.Phone.CONTENT_TYPE;
-				var intent = new android.content.Intent(android.content.Intent.ACTION_DEFAULT,uri);
+				var intent = new android.content.Intent(android.content.Intent.ACTION_DEFAULT, uri);
 				application.android.currentContext.startActivity(intent);
 			}
 			else {
@@ -1057,9 +1100,8 @@ export class Form {
 		return topmost().currentPage;
 	};
 
-	public showPage(me, pageName: string, context?: any, folder?: string) {
-
-		if (me) me.childPage = pageName;
+	public showPage(pageName: string, context?: any, folder?: string) {
+		if (this.currentPage.bindingContext) this.currentPage.bindingContext.childPage = pageName;
 		var data = {
 			moduleName: (folder || '') + pageName + '/' + pageName,
 			context: context || {},
