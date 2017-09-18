@@ -3,7 +3,6 @@ import * as moment from "moment";
 import * as view from "ui/core/view";
 import * as observableModule from "data/observable";
 import * as fileSystemModule from "file-system";
-import * as CryptoJS from "crypto-js";
 
 import { topmost } from 'ui/frame';
 import { Page } from 'ui/page';
@@ -18,7 +17,9 @@ import { ObservableArray } from "data/observable-array";
 import { isAndroid, isIOS } from "platform";
 import { ios } from "utils/utils"
 
-declare var android: any;
+var CryptoJS = require("crypto-js");
+
+
 declare var java: any;
 declare var NSData: any;
 
@@ -1043,7 +1044,7 @@ export class Call {
 		try {
 			if (android) {
 				if (filename.substr(0, 7) != "file://" || filename.substr(0, 10) != "content://") filename = "file://" + filename;
-				if (android.os.Build.VERSION.SDK_INT > android.os.Build.VERSION_CODES.M) filename = filename.replace("file://", "content://");
+				if (android.os.Build.VERSION.SDK_INT > (<any>android.os.Build.VERSION_CODES).M) filename = filename.replace("file://", "content://");
 
 				var uri = android.net.Uri.parse(filename.trim());
 				var type = "application/" + ((exports.str.inList(filename.slice(-4), ['.pdf', '.doc', '.xml'])) ? filename.slice(-3) : "*");
