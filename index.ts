@@ -19,6 +19,7 @@ import { ios } from "utils/utils"
 
 var CryptoJS = require("crypto-js");
 
+declare var android: any;
 
 declare var java: any;
 declare var NSData: any;
@@ -360,6 +361,14 @@ export class Str {
 		});
 	}
 
+	/** Create observableed row fields as Observables objects to parent as tablename_fieldname  */
+	public objFromObservable(me: observableModule.Observable, obj: object, prefix?: string) {
+		if (!me || !obj) return;
+		Object.keys(obj).forEach(function (key) {
+			obj[key] = obj[key] = me.get((prefix || '') + "_" + key);
+		});
+	}
+
 	/** check if object is empty  */
 	public isEmptyObject(obj) {
 		return Object.getOwnPropertyNames(obj).length === 0;
@@ -436,6 +445,29 @@ export class Dt {
 		var secondsStr = (seconds < 10 ? '0' : '') + seconds.toString();
 		return (hours ? hoursStr + ':' : '') + minutesStr + ':' + secondsStr;
 	}
+
+		/** show duration in words since this time*/
+		public timeSince(date: Date): string {
+			
+					var seconds = Math.floor((new Date().getTime() - date.getTime()) / 1000);
+					var interval = Math.floor(seconds / 31536000);
+			
+					if (interval > 1) return interval + " years";
+					if (interval == 1) return interval + " year";
+					interval = Math.floor(seconds / 2592000);
+					if (interval > 1) return interval + " months";
+					if (interval == 1) return interval + " month";
+					interval = Math.floor(seconds / 86400);
+					if (interval > 1) return interval + " days";
+					if (interval == 1) return interval + " day";
+					interval = Math.floor(seconds / 3600);
+					if (interval > 1) return interval + " hours";
+					if (interval == 1) return interval + " hour";
+					interval = Math.floor(seconds / 60);
+					if (interval > 1) return interval + " minutes";
+					if (interval == 1) return interval + " minute";
+					return Math.floor(seconds) + " seconds";
+				}
 
 	//Years -------------------------------------------------------------------------------
 	/** add a year to a date */
@@ -533,8 +565,8 @@ export class Dt {
 	}
 
 	/** convert a date to a string (DD/MM/YYYY) */
-	public timeToStr(date?: Date): string {
-		return moment(date).format('hh:mm A');
+	public timeToStr(date?: Date, format?: "HH:mm" | "hh:mm A"): string {
+		return moment(date).format(format || 'hh:mm A');
 	}
 
 	/** convert a string to a date 

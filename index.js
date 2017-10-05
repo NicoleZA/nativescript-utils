@@ -338,6 +338,14 @@ var Str = /** @class */ (function () {
             me.set((prefix || '') + "_" + key, obj[key]);
         });
     };
+    /** Create observableed row fields as Observables objects to parent as tablename_fieldname  */
+    Str.prototype.objFromObservable = function (me, obj, prefix) {
+        if (!me || !obj)
+            return;
+        Object.keys(obj).forEach(function (key) {
+            obj[key] = obj[key] = me.get((prefix || '') + "_" + key);
+        });
+    };
     /** check if object is empty  */
     Str.prototype.isEmptyObject = function (obj) {
         return Object.getOwnPropertyNames(obj).length === 0;
@@ -409,6 +417,36 @@ var Dt = /** @class */ (function () {
         var minutesStr = (minutes < 10 ? '0' : '') + minutes.toString();
         var secondsStr = (seconds < 10 ? '0' : '') + seconds.toString();
         return (hours ? hoursStr + ':' : '') + minutesStr + ':' + secondsStr;
+    };
+    /** show duration in words since this time*/
+    Dt.prototype.timeSince = function (date) {
+        var seconds = Math.floor((new Date().getTime() - date.getTime()) / 1000);
+        var interval = Math.floor(seconds / 31536000);
+        if (interval > 1)
+            return interval + " years";
+        if (interval == 1)
+            return interval + " year";
+        interval = Math.floor(seconds / 2592000);
+        if (interval > 1)
+            return interval + " months";
+        if (interval == 1)
+            return interval + " month";
+        interval = Math.floor(seconds / 86400);
+        if (interval > 1)
+            return interval + " days";
+        if (interval == 1)
+            return interval + " day";
+        interval = Math.floor(seconds / 3600);
+        if (interval > 1)
+            return interval + " hours";
+        if (interval == 1)
+            return interval + " hour";
+        interval = Math.floor(seconds / 60);
+        if (interval > 1)
+            return interval + " minutes";
+        if (interval == 1)
+            return interval + " minute";
+        return Math.floor(seconds) + " seconds";
     };
     //Years -------------------------------------------------------------------------------
     /** add a year to a date */
@@ -508,8 +546,8 @@ var Dt = /** @class */ (function () {
         }
     };
     /** convert a date to a string (DD/MM/YYYY) */
-    Dt.prototype.timeToStr = function (date) {
-        return moment(date).format('hh:mm A');
+    Dt.prototype.timeToStr = function (date, format) {
+        return moment(date).format(format || 'hh:mm A');
     };
     /** convert a string to a date
      ** Default format:  (DD/MM/YYYY)
