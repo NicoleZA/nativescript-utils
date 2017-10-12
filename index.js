@@ -392,6 +392,11 @@ var Str = /** @class */ (function () {
             return res;
         }, Object.create(null));
     };
+    /**get string value from enum replacing underscores with spaces */
+    Str.prototype.enumToString = function (enumObj, value) {
+        return enumObj[value].toString().replace(/_/g, " ");
+    };
+    ;
     return Str;
 }());
 exports.Str = Str;

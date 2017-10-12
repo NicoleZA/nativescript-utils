@@ -418,7 +418,10 @@ export class Str {
 		}, Object.create(null));
 	}
 
-
+	/**get string value from enum replacing underscores with spaces */
+	public enumToString(enumObj, value) {
+		return enumObj[value].toString().replace(/_/g, " ");
+	};
 
 }
 
@@ -446,28 +449,28 @@ export class Dt {
 		return (hours ? hoursStr + ':' : '') + minutesStr + ':' + secondsStr;
 	}
 
-		/** show duration in words since this time*/
-		public timeSince(date: Date): string {
-			
-					var seconds = Math.floor((new Date().getTime() - date.getTime()) / 1000);
-					var interval = Math.floor(seconds / 31536000);
-			
-					if (interval > 1) return interval + " years";
-					if (interval == 1) return interval + " year";
-					interval = Math.floor(seconds / 2592000);
-					if (interval > 1) return interval + " months";
-					if (interval == 1) return interval + " month";
-					interval = Math.floor(seconds / 86400);
-					if (interval > 1) return interval + " days";
-					if (interval == 1) return interval + " day";
-					interval = Math.floor(seconds / 3600);
-					if (interval > 1) return interval + " hours";
-					if (interval == 1) return interval + " hour";
-					interval = Math.floor(seconds / 60);
-					if (interval > 1) return interval + " minutes";
-					if (interval == 1) return interval + " minute";
-					return Math.floor(seconds) + " seconds";
-				}
+	/** show duration in words since this time*/
+	public timeSince(date: Date): string {
+
+		var seconds = Math.floor((new Date().getTime() - date.getTime()) / 1000);
+		var interval = Math.floor(seconds / 31536000);
+
+		if (interval > 1) return interval + " years";
+		if (interval == 1) return interval + " year";
+		interval = Math.floor(seconds / 2592000);
+		if (interval > 1) return interval + " months";
+		if (interval == 1) return interval + " month";
+		interval = Math.floor(seconds / 86400);
+		if (interval > 1) return interval + " days";
+		if (interval == 1) return interval + " day";
+		interval = Math.floor(seconds / 3600);
+		if (interval > 1) return interval + " hours";
+		if (interval == 1) return interval + " hour";
+		interval = Math.floor(seconds / 60);
+		if (interval > 1) return interval + " minutes";
+		if (interval == 1) return interval + " minute";
+		return Math.floor(seconds) + " seconds";
+	}
 
 	//Years -------------------------------------------------------------------------------
 	/** add a year to a date */
