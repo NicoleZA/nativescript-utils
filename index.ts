@@ -630,7 +630,7 @@ export class Dt {
 	/** get short description for month */
 	public monthName(month: number): string {
 		if (!month) return '';
-		var month_names_short = ['', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'Octover', 'November', 'December'];
+		var month_names_short = ['', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 		var monthName = month_names_short[month];
 		return monthName;
 	}
@@ -638,7 +638,7 @@ export class Dt {
 	/** get short description for month */
 	public dayOfWeek(date: Date, option?: "Short" | "Long"): string {
 		if (!date) return '';
-		var day_names_short = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Fridate', 'Saturday'];
+		var day_names_short = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 		var day_names_long = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 		if (option == "Short") {
 			return day_names_short[date.getDay()]
