@@ -213,6 +213,14 @@ export class Str {
 		return result;
 	}
 
+		/**
+	 * HmacSHA256
+	 */
+	public HmacSHA512(message: string, secret: string): string {
+		var result = CryptoJS.HmacSHA512(message, secret).toString();
+		return result;
+	}
+
 	/**
 	 * stringToByte
 	 */

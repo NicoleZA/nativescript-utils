@@ -206,6 +206,13 @@ var Str = /** @class */ (function () {
         return result;
     };
     /**
+ * HmacSHA256
+ */
+    Str.prototype.HmacSHA512 = function (message, secret) {
+        var result = CryptoJS.HmacSHA512(message, secret).toString();
+        return result;
+    };
+    /**
      * stringToByte
      */
     Str.prototype.stringToByte = function (string) {
@@ -615,7 +622,7 @@ var Dt = /** @class */ (function () {
     Dt.prototype.monthName = function (month) {
         if (!month)
             return '';
-        var month_names_short = ['', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'Octover', 'November', 'December'];
+        var month_names_short = ['', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
         var monthName = month_names_short[month];
         return monthName;
     };
@@ -623,7 +630,7 @@ var Dt = /** @class */ (function () {
     Dt.prototype.dayOfWeek = function (date, option) {
         if (!date)
             return '';
-        var day_names_short = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Fridate', 'Saturday'];
+        var day_names_short = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
         var day_names_long = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
         if (option == "Short") {
             return day_names_short[date.getDay()];
