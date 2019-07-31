@@ -5,7 +5,7 @@ import * as observableModule from "data/observable";
 import * as fileSystemModule from "file-system";
 
 import { topmost } from 'ui/frame';
-import { Page } from 'ui/page';
+import { Page, ShowModalOptions } from 'ui/page';
 import { Buffer } from 'buffer';
 
 import * as phone from "nativescript-phone";
@@ -1096,7 +1096,7 @@ export class Call {
 				var intent = new android.content.Intent(android.content.Intent.ACTION_VIEW);
 				intent.setDataAndType(uri, type);
 				intent.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK);
-				application.android.currentContext.startActivity(intent);
+				application.android.startActivity(intent);
 			}
 			else {
 				ios.openFile(filename);
@@ -1114,7 +1114,7 @@ export class Call {
 				var uri = android.provider.ContactsContract.Contacts.CONTENT_URI;
 				var type = android.provider.ContactsContract.CommonDataKinds.Phone.CONTENT_TYPE;
 				var intent = new android.content.Intent(android.content.Intent.ACTION_DEFAULT, uri);
-				application.android.currentContext.startActivity(intent);
+				application.android.startActivity(intent);
 			}
 			else {
 				//ios.(filename);
@@ -1170,9 +1170,12 @@ export class Form {
 	public showModal(path: string, params?, fullscreen?: boolean): Promise<any> {
 		var me = this;
 		return new Promise(function (resolve, reject) {
-			topmost().currentPage.showModal(path, params, function (args) {
-				resolve(args);
-			}, fullscreen)
+			const options: ShowModalOptions = {
+				context: params,
+				closeCallback: () => {},
+				fullscreen: fullscreen
+			};
+			topmost().currentPage.showModal(path, options)
 		});
 	}
 

@@ -1053,7 +1053,7 @@ var Call = /** @class */ (function () {
                 var intent = new android.content.Intent(android.content.Intent.ACTION_VIEW);
                 intent.setDataAndType(uri, type);
                 intent.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK);
-                application.android.currentContext.startActivity(intent);
+                application.android.startActivity(intent);
             }
             else {
                 utils_1.ios.openFile(filename);
@@ -1071,7 +1071,7 @@ var Call = /** @class */ (function () {
                 var uri = android.provider.ContactsContract.Contacts.CONTENT_URI;
                 var type = android.provider.ContactsContract.CommonDataKinds.Phone.CONTENT_TYPE;
                 var intent = new android.content.Intent(android.content.Intent.ACTION_DEFAULT, uri);
-                application.android.currentContext.startActivity(intent);
+                application.android.startActivity(intent);
             }
             else {
                 //ios.(filename);
@@ -1130,9 +1130,12 @@ var Form = /** @class */ (function () {
     Form.prototype.showModal = function (path, params, fullscreen) {
         var me = this;
         return new Promise(function (resolve, reject) {
-            frame_1.topmost().currentPage.showModal(path, params, function (args) {
-                resolve(args);
-            }, fullscreen);
+            var options = {
+                context: params,
+                closeCallback: function () { },
+                fullscreen: fullscreen
+            };
+            frame_1.topmost().currentPage.showModal(path, options);
         });
     };
     return Form;
